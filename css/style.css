@@ -1,0 +1,124 @@
+@font-face {
+  font-family: kenzo-regular;
+  src: url(../fonts/kenzo-regular.otf);
+}
+
+@font-face {
+  font-family: genome-thin;
+  src: url(../fonts/genome-thin.otf);
+}
+
+body {
+  min-width: 800px;
+  min-height: 500px;
+  background: #e9eaed;
+}
+
+.top-bar-section ul li a {
+  color: white;
+  font-size: 16px;
+  text-align: center;
+}
+
+.top-bar-section ul li a:hover {
+  color: #2d2920 !important;
+  background: #fcca09 !important;
+}
+
+.name a {
+  font-family: kenzo-regular;
+  font-size: 23px;
+}
+.main-content {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.clear-button {
+  background: #f49617 !important;
+  font-size: 14px;
+  float:right;
+}
+
+.indep-button {
+  background: #17d436 !important;
+  font-size: 14px;
+  float:right;
+  margin-right: 10px;
+}
+
+.my-button {
+  background: yellow;
+  color: white !important; 
+  padding: 8px 10px;
+  text-align: center;
+  position: relative;
+}
+
+.report-button {
+  background: #00a9a6 !important;
+  font-size: 12px;
+  float:right;
+}
+
+.my-button:hover {
+  color:white;
+}
+
+.delete-button {
+  background: #ed0030 !important;   
+  font-size: 20px;
+  text-align: center;
+}
+
+.center-vertically {
+  padding-top: 20px;
+}
+
+.my-dropdown {
+  font-size: 18px;
+  color: black;
+  text-align: center;
+}
+
+#chemical-reaction-table tr td {
+  text-align: center !important;
+}
+
+.test-results-table tr td {
+  min-width: 120px;
+  text-align:left !important;
+}
+
+tr th, td {
+  text-align: center !important;
+  font-size: 16px !important;
+  font-family: genome-thin !important;
+  font-weight: 800;
+}
+
+tr:first-child:hover {
+  background: none !important;
+}
+
+.border-left {
+  border-left: 2px solid black;   
+}
+
+tr:hover {
+  background: rgba(217, 215, 207, 0.95) !important;   
+}
+
+table {
+  text-align: center;
+  vertical-align: middle;
+  overflow-y: auto;
+  width: 100%;
+  border-collapse:collapse;
+}
+
+.text-field {
+  font-family: genome-thin !important;
+  font-weight: bolder;
+  font-size: 16px !important;
+}

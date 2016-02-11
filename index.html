@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+
+  <title>CRN Polyglot - A ComET Project</title>
+
+  <link rel="stylesheet" href="css/foundation.min.css">
+  <link rel="stylesheet" href="fonts/foundation-icons/foundation-icons.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="sticky">
+    <nav class="top-bar" data-topbar role="navigation" data-options="sticky_on: large">
+      <ul class="title-area">
+        <li class="name">
+          <h1><a href="#" v-on:click="backToInput()">CRN Polyglot</a></h1>
+        </li>
+        <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+      </ul>
+      <section class="top-bar-section">
+        <ul class="left">
+          <li class="has-dropdown">
+            <a href="#"><i class="fi-page"></i> File</a>
+            <ul class="dropdown">
+              <li><a href="#" onclick="loadCRNP();">Open CRN File</a></li>
+              <li><a href="#" onclick="saveCRNP();">Save CRN File</a></li>
+              <!--<li><a href="#" v-on:click="generate()">Generate CRN File</a></li>-->
+            </ul>
+          </li>
+          <li><a href="#" v-on:click="generate()">Generate CRN File</a></li>
+          <!--<li><a href="analyse_crn.html"><i class="fi-eye"></i> Analyse CRN</a></li>
+          <li><a href="#"><i class="fi-info"></i> Help</a></li>-->
+        </ul>
+      </section>
+    </nav>
+  </div>
+
+  <div id="independent-reactions-modal" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+    <h2 id="modalTitle">Add Independent Reactions</h2>
+    <div class="row">
+      <div class="small-6 columns">
+        <label>
+          Variable
+          <input type="text" id="var" v-model="independentReactionModal.variable">
+        </label>
+      </div>
+      <div class="small-3 columns">
+        <label>
+          Start Index
+          <input type="number" id="start-i" v-model="independentReactionModal.startIndex">
+        </label>
+      </div>
+      <div class="small-3 columns">
+        <label>
+          End Index
+          <input type="number" id="end-i" v-model="independentReactionModal.endIndex">
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <a href="#" class="primary button right" v-on:click="addIndependentReactions()">Add</a>
+    </div>
+    <a class="close-reveal-modal" aria-label="Close">×</a>
+  </div>
+
+  <div class="main-content">
+    <div v-show="!viewOutput">
+      <div class="row">
+        
+        <div class="small-4 columns">
+          <input class="text-field" type="text" size="30" placeholder="Model name" id="model_name" v-model="modelName">
+        </div>
+        <div class="small-6 columns">
+          <a class="clear-button my-button" href="#" id="clear-reaction" v-on:click="clearReactions()"><i class="fi-trash"></i> Clear All Reactions</a>
+          <a class="indep-button my-button" href="#" data-reveal-id="independent-reactions-modal"><i class="fi-plus"></i> Add Independent Reactions</a>
+        </div>
+      </div>
+      
+      <div class="row">
+  
+        <table id="chemical-reaction-table">
+          <thead>
+            <tr>
+              <th colspan="2">REACTANT</th>
+              <th></th>
+              <th colspan="2">PRODUCT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="reaction in reactions">
+              <td class="vertical-align">
+                <h5>{{ $index + 1 }}</h5></td>
+              <td class="center-vertically">
+                <input class="text-field" type="text" size="30" placeholder="Ø" id="reactant-{{ $index }}" v-model="reaction.reactant" v-on:keyup.enter="nextReaction($index)"
+                v-on:input="saveReactions()">
+              </td>
+              <td class="center-vertically">
+                <select class="my-dropdown" v-model="reaction.arrow" v-on:input="saveReactions()">
+                  <option value="->">→</option>
+                  <option value="<->">↔</option>
+                  <option value="<-">←</option>
+                </select>
+              </td>
+              <td class="center-vertically">
+                <input class="text-field product-field" type="text" size="30" placeholder="Ø" id="product-{{ $index }}" v-model="reaction.product"
+                v-on:keyup.enter="nextReaction($index)" v-on:input="saveReactions()">
+              </td>
+              <td><a class="delete-button my-button delete-row" href="#" v-on:click="removeReaction($index)"><i class="fi-x"></i></a></td>
+            </tr>
+          </tbody>
+        </table>
+  
+        <p class="text-center">To add another reaction, simply press enter on any of the text fields</p>
+      </div>
+    </div>
+    
+    <div class="row" v-show="viewOutput">
+      <h2>ERNEST</h2>
+      <p>Copy and paste the code below to a .m file and run it on MATLAB.</p>
+      <pre><code style="display: block; overflow: auto;">{{output.ernest}}</code></pre>
+      <h2>CoNtRol</h2>
+      <p>Copy and paste the code below to a .txt file and upload it to CoNtRol (left sidebar).</p>
+      <pre><code style="display: block; overflow: auto;">{{output.control}}</code></pre>
+    </div>
+  </div>
+
+  <script src="js/vendor/modernizr.js"></script>
+  <script src="js/vendor/jquery.js"></script>
+  <script src="js/foundation.min.js"></script>
+  <script src="js/vue.js"></script>
+  <script>
+    $(document).foundation();
+  </script>
+
+  <script>
+    function blankReaction() {
+      return { reactant: '', product: '', arrow: '->' };
+    }
+    
+    var vm = new Vue({
+      el: 'body',
+      data: { 
+        viewOutput: false,
+        modelName: loadModelName() || '',
+        reactions: loadReactions() || [blankReaction()],
+        independentReactionModal: {
+          variable: 'X',
+          startIndex: 1,
+          endIndex: 1,
+        },
+        output: {
+          ernest: '',
+          control: '',
+        },
+      },
+      methods: {
+        nextReaction: function(index) {
+          var nextIndex = index + 1;
+          if (nextIndex === this.reactions.length) {
+            this.reactions.push(blankReaction());            
+          }
+          
+          this.$nextTick(function() {
+            document.getElementById('reactant-' + nextIndex).focus();
+          });
+        },
+        removeReaction: function(index) {
+          this.reactions.splice(index, 1);
+          if (this.reactions.length === 0) {
+            this.reactions.push(blankReaction()); 
+          }
+          
+          var prevIndex = Math.max(index - 1, 0);
+          this.$nextTick(function() {
+            document.getElementById('reactant-' + prevIndex).focus();
+          });
+        },
+        clearReactions: function() {
+          this.reactions = [blankReaction()];
+        },
+        saveReactions: function() {
+          saveReactions(this.reactions);
+        },
+        addIndependentReactions: function() {
+          var ctx = this.independentReactionModal;
+          for (var i = ctx.startIndex; i <= ctx.endIndex; i++) {
+            this.reactions.push({ reactant: '', product: ctx.variable + i, arrow: '->' });
+          }
+          $('#independent-reactions-modal').foundation('reveal', 'close');
+        },
+        backToInput: function() {
+          this.viewOutput = false;
+        },
+        generate: function() {
+          var rs = preprocess(this.reactions);
+          this.output.ernest = genErnest(this.modelName || 'Unnamed Model', rs);
+          this.output.control = genControl(rs);
+          this.viewOutput = true;
+          document.body.click();
+        },
+      }
+    });
+    
+    vm.$watch('reactions', saveReactions);
+    vm.$watch('modelName', saveModelName);
+    function loadModelName() {
+      return localStorage.getItem("CRN-Polyglot-model-name");
+    }
+    
+    function saveModelName(modelName) {
+      localStorage.setItem("CRN-Polyglot-model-name", modelName);
+    }
+    
+    function loadReactions() {
+      return JSON.parse(localStorage.getItem("CRN-Polyglot-reactions"));
+    }
+    
+    function saveReactions(reactions) {
+      localStorage.setItem("CRN-Polyglot-reactions", JSON.stringify(reactions));
+    }
+    
+    window.onunload = function() {
+      saveReactions(vm.reactions);
+    }
+    
+    function split(complex) {
+      return complex.replace(/^\s*(.*)\s*$/, "$1").split(/\s*\+\s*/).map(function(term) {
+        var matches = term.match(/(\d*)(.*)/);
+        return [matches[1] || '1', matches[2] || '0'];
+      });
+    }
+    
+    function preprocess(reactions) {
+      return reactions.map(function(r) {
+        var processed = { l: split(r.reactant), r:  split(r.product), reversible: r.arrow === '<->' };
+        if (r.arrow === '<-') {
+          var t = processed.l;
+          processed.l = processed.r;
+          processed.r = t;
+        }
+        return processed;
+      });
+    }
+    
+    function species(rs) {
+      var m = Object.create(null);
+      rs.forEach(function(r) {
+        r.l.forEach(function(x) { m[x[1]] = true; });
+        r.r.forEach(function(x) { m[x[1]] = true; });
+      });
+      
+      delete m['0'];
+      var s = Object.keys(m).map(function(k) { return '\'' + k + '\''; }).sort();
+      return s.length === 1 ? s[0] : '{' + s.join(', ') + '}';
+    }
+    
+    function ernestify(r) {
+      return 'struct(\'id\', \'' + eyedee(r) + '\', \'reactant\', ' + blackmagic(r.l) + ', \'product\', ' + blackmagic(r.r) + ', \'reversible\', ' + String(r.reversible) + ')';
+    }
+    
+    function eyedee(r) {
+      var left = r.l.map(function(x) { return (x[0] != 1 ? x[0] : '') + x[1]; }).join('+');
+      var right = r.r.map(function(x) { return (x[0] != 1 ? x[0] : '') + x[1]; }).join('+');
+      var arr = r.reversible ? '<->' : '->';
+      return left + arr + right;
+    }
+    
+    function blackmagic(complex) {
+      if (complex[0][1] == '0') return 'struct([])';
+      var sp = complex.map(function(x) { return '\'' + x[1] + '\''; });
+      sp = sp.length === 1 ? sp[0] : '{' + sp.join(', ') + '}';
+      var st = complex.map(function(x) { return x[0]; });
+      st = st.length === 1 ? st[0] : '{' + st.join(', ') + '}';
+      return 'struct(\'species\', ' + sp + ', \'stoichiometry\', ' + st + ')';
+    }
+    
+    function genErnest(name, rs) {
+      var s = '';
+      function a(t) { s += t + '\n'; }
+      a('clear model');
+      a('');
+      a('model.id = \'' + name.replace(/\s+/g, '_') + '\';');
+      a('model.name = \'' + name + '\';');
+      
+      a('model.species = struct(\'id\', ' + species(rs) + ');');
+      for (var i = 0; i < rs.length; i++) {
+        a('model.reaction(' + (i + 1) + ') = ' + ernestify(rs[i]) + ';');
+      }
+      
+      a('');
+      a('disp([\'Model: \' model.name]);');
+      a('model_analysis(model);');
+      return s;
+    }
+    
+    function genControl(rs) {
+      return rs.map(function(r) {
+        var left = r.l.map(function(x) { return (x[0] != 1 ? x[0] : '') + x[1]; }).join(' + ');
+        var right = r.r.map(function(x) { return (x[0] != 1 ? x[0] : '') + x[1]; }).join(' + ');
+        var arr = r.reversible ? ' <--> ' : ' --> ';
+        return left + arr + right;
+      }).join('\n');
+    }
+    
+    var saveLink = document.createElement('a');
+    saveLink.style.display = 'none';
+    document.body.appendChild(saveLink);
+    
+    var openBrowse = document.createElement('input');
+    openBrowse.setAttribute('type', 'file');
+    openBrowse.setAttribute('accept', '.crnp');
+    openBrowse.style.display = 'none';
+    document.body.appendChild(openBrowse);
+    
+    openBrowse.addEventListener('change', function(event) {
+      var file = openBrowse.files[0];
+      readCRNP(file);
+    });
+    
+    function readCRNP(file) {
+      var reader = new FileReader();
+      reader.onload = (function() {
+        var j = JSON.parse(reader.result);
+        // TODO: error checking...
+        vm.modelName = j.name;
+        vm.reactions = j.reactions;
+      });
+      reader.readAsText(file);
+    }
+    
+    function loadCRNP() {
+      openBrowse.click();
+    }
+        
+    function saveCRNP() {
+      var n = vm.modelName || 'Unnamed Model';
+      saveLink.setAttribute('href', 'data:text/text;charset=utf-8,' + JSON.stringify({ name: n, reactions: vm.reactions }));
+      saveLink.setAttribute('download', n + '.crnp');
+      saveLink.click();
+    }
+    
+    document.body.ondragover = function(e) { e.preventDefault(); return false; }
+    document.body.ondrop = function (e) {
+      e.preventDefault();
+      var file = e.dataTransfer.files[0];
+      readCRNP(file);
+      return false;
+    };
+  </script>
+</body>
+
+</html>
