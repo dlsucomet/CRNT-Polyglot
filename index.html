@@ -125,6 +125,9 @@
       <h2>CoNtRol</h2>
       <p>Copy and paste the code below to a .txt file and upload it to CoNtRol (left sidebar).</p>
       <pre><code style="display: block; overflow: auto;">{{output.control}}</code></pre>
+      <h2>CRN Toolbox</h2>
+      <p>Copy and paste the code below to a .NET file and open it with CRN Toolbox.</p>
+      <pre><code style="display: block; overflow: auto;">{{output.crntoolbox}}</code></pre>
     </div>
   </div>
 
@@ -155,6 +158,7 @@
         output: {
           ernest: '',
           control: '',
+          crntoolbox: '',
         },
       },
       methods: {
@@ -196,15 +200,45 @@
           this.viewOutput = false;
         },
         generate: function() {
-          var rs = preprocess(this.reactions);
-          this.output.ernest = genErnest(this.modelName || 'Unnamed Model', rs);
-          this.output.control = genControl(rs);
+          var reactionNetwork = {
+            modelName: this.modelName || "Unnamed Model",
+            reactions: this.reactions.map(parseReactionInput),
+          };
+          flipLeftArrowedReactions(reactionNetwork);
+          this.output.ernest = ERNEST_generate(reactionNetwork);
+          this.output.control = CONTROL_generate(reactionNetwork);
+          this.output.crntoolbox = CRNTOOLBOX_generate(reactionNetwork);
           this.viewOutput = true;
           document.body.click();
         },
       }
     });
     
+    var Arrow = {
+      left: '<-',
+      right: '->',
+      both: '<->',
+    };
+    
+    function parseReactionInput(reactionInput) {
+      return {
+        left: parseComplexInput(reactionInput.reactant),
+        right: parseComplexInput(reactionInput.product),
+        arrow: reactionInput.arrow,
+      };
+    }
+    
+    function parseComplexInput(complexInput) {
+      var terms = complexInput.replace(/^\s*(.*?)\s*$/, "$1").split(/\s*\+\s*/);
+      return terms.map(function(term) {
+        var matchedGroups = term.match(/(\d*)(.*)/);
+        return { 
+          coefficient: Number(matchedGroups[1]) || 1, 
+          variable: matchedGroups[2] || '0'
+        };
+      });
+    }
+        
     vm.$watch('reactions', saveReactions);
     vm.$watch('modelName', saveModelName);
     function loadModelName() {
@@ -227,83 +261,56 @@
       saveReactions(vm.reactions);
     }
     
-    function split(complex) {
-      return complex.replace(/^\s*(.*)\s*$/, "$1").split(/\s*\+\s*/).map(function(term) {
-        var matches = term.match(/(\d*)(.*)/);
-        return [matches[1] || '1', matches[2] || '0'];
+    function fillBlanks(text) {
+      var count = 0;
+      var replacements = arguments;
+      var filled = text.replace(/__/g, function() {
+        count++;
+        return replacements[count];
       });
+      return filled;
     }
     
-    function preprocess(reactions) {
-      return reactions.map(function(r) {
-        var processed = { l: split(r.reactant), r:  split(r.product), reversible: r.arrow === '<->' };
-        if (r.arrow === '<-') {
-          var t = processed.l;
-          processed.l = processed.r;
-          processed.r = t;
-        }
-        return processed;
-      });
-    }
-    
-    function species(rs) {
-      var m = Object.create(null);
-      rs.forEach(function(r) {
-        r.l.forEach(function(x) { m[x[1]] = true; });
-        r.r.forEach(function(x) { m[x[1]] = true; });
+    function getVariables(reactionNetwork) {
+      var variableSet = Object.create(null);
+      reactionNetwork.reactions.forEach(function(reaction) {
+        reaction.left.forEach(function(term) { variableSet[term.variable] = true; });
+        reaction.right.forEach(function(term) { variableSet[term.variable] = true; });
       });
       
-      delete m['0'];
-      var s = Object.keys(m).map(function(k) { return '\'' + k + '\''; }).sort();
-      return s.length === 1 ? s[0] : '{' + s.join(', ') + '}';
-    }
-    
-    function ernestify(r) {
-      return 'struct(\'id\', \'' + eyedee(r) + '\', \'reactant\', ' + blackmagic(r.l) + ', \'product\', ' + blackmagic(r.r) + ', \'reversible\', ' + String(r.reversible) + ')';
-    }
-    
-    function eyedee(r) {
-      var left = r.l.map(function(x) { return (x[0] != 1 ? x[0] : '') + x[1]; }).join('+');
-      var right = r.r.map(function(x) { return (x[0] != 1 ? x[0] : '') + x[1]; }).join('+');
-      var arr = r.reversible ? '<->' : '->';
-      return left + arr + right;
-    }
-    
-    function blackmagic(complex) {
-      if (complex[0][1] == '0') return 'struct([])';
-      var sp = complex.map(function(x) { return '\'' + x[1] + '\''; });
-      sp = sp.length === 1 ? sp[0] : '{' + sp.join(', ') + '}';
-      var st = complex.map(function(x) { return x[0]; });
-      st = st.length === 1 ? st[0] : '{' + st.join(', ') + '}';
-      return 'struct(\'species\', ' + sp + ', \'stoichiometry\', ' + st + ')';
-    }
-    
-    function genErnest(name, rs) {
-      var s = '';
-      function a(t) { s += t + '\n'; }
-      a('clear model');
-      a('');
-      a('model.id = \'' + name.replace(/\s+/g, '_') + '\';');
-      a('model.name = \'' + name + '\';');
-      
-      a('model.species = struct(\'id\', ' + species(rs) + ');');
-      for (var i = 0; i < rs.length; i++) {
-        a('model.reaction(' + (i + 1) + ') = ' + ernestify(rs[i]) + ';');
-      }
-      
-      a('');
-      a('disp([\'Model: \' model.name]);');
-      a('model_analysis(model);');
+      delete variableSet['0'];
+      var s = Object.keys(variableSet);
       return s;
     }
     
-    function genControl(rs) {
-      return rs.map(function(r) {
-        var left = r.l.map(function(x) { return (x[0] != 1 ? x[0] : '') + x[1]; }).join(' + ');
-        var right = r.r.map(function(x) { return (x[0] != 1 ? x[0] : '') + x[1]; }).join(' + ');
-        var arr = r.reversible ? ' <--> ' : ' --> ';
-        return left + arr + right;
-      }).join('\n');
+    function flipLeftArrowedReactions(reactionNetwork) {
+      var reactions = reactionNetwork.reactions;
+      for (var i = 0; i < reactions.length; i++) {
+        var reaction = reactions[i];
+        if (reaction.arrow === Arrow.left) {
+          var newLeft = reaction.right;
+          var newRight = reaction.left;
+          reaction.left = newLeft;
+          reaction.right = newRight;
+          reaction.arrow = Arrow.right;
+        }
+      }
+    }
+    
+    function termToString(term) {
+      if (term.coefficient === 1) {
+        return term.variable;
+      }
+      
+      return term.coefficient + term.variable;
+    }
+    
+    function complexToStringList(complex) {  // toStringArray?
+      return complex.map(termToString);
+    }
+    
+    function isReversible(reaction) {
+      return reaction.arrow === Arrow.both;
     }
     
     var saveLink = document.createElement('a');
@@ -351,6 +358,9 @@
       return false;
     };
   </script>
+  <script src="njs/formats/ernest.js"></script>
+  <script src="njs/formats/control.js"></script>
+  <script src="njs/formats/crn-toolbox.js"></script>
 </body>
 
 </html>
