@@ -1,0 +1,25 @@
+{
+  "name": "crnt-polyglot",
+  "version": "0.2.0",
+  "description": "A tool for Chemical Reaction Network Theory (CRNT)",
+  "homepage": "https://github.com/dlsucomet/CRNT-Polyglot#readme",
+  "author": "DLSU Center for Complexity and Emerging Technologies (COMET)",
+  "license": "UNLICENSED",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/dlsucomet/CRNT-Polyglot/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dlsucomet/CRNT-Polyglot.git"
+  },
+  "scripts": {
+    "build": "webpack --progress --colors",
+    "watch": "webpack --progress --colors --watch"
+  },
+  "devDependencies": {
+    "ts-loader": "^0.8.2",
+    "typescript": "^1.8.10",
+    "webpack": "^1.13.1"
+  }
+}
