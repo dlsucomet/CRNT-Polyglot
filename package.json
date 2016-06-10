@@ -15,7 +15,9 @@
   },
   "scripts": {
     "build": "webpack --progress --colors",
-    "watch": "webpack --progress --colors --watch"
+    "watch": "webpack --progress --colors --watch",
+    "build-tests": "tsc -m commonjs -t es5 --outDir test/js test/*.ts",
+    "test": "node test/js/test/*.js"
   },
   "devDependencies": {
     "ts-loader": "^0.8.2",
