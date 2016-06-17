@@ -4,9 +4,11 @@ export interface TestFile {
 }
 
 import { Test as ReactionTextConversion } from './reaction-text-conversion'
+import { Test as ControlFileGeneration } from './control-file-generation'
 
 let tests: Array<TestFile> = [
   new ReactionTextConversion(),
+  new ControlFileGeneration(),
 ];
 
 
