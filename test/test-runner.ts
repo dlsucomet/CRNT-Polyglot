@@ -17,9 +17,9 @@ export class Tester {
   numPass = 0;
   errors: Array<string> = [];
 
-  test(mustTrue: boolean, description: string = "<no description given>") {
+  test(expectation: boolean, description: string = "<no description given>") {
     this.numTests++;
-    if (mustTrue === true) {
+    if (expectation === true) {
       this.numPass++;
     } else {
       this.errors.push(`test #${this.numTests}: ${description}`);
@@ -36,11 +36,17 @@ for (let t of tests) {
   process.stdout.write("\x1b[7mTESTING\x1b[0m " + testName);
 
   let crashed = false;
+  let stackTrace: Array<string> = null;
   let startTime = new Date().getTime();
   try {
     t.run(tester);
   } catch (e) {
     crashed = true;
+    try {
+      stackTrace = e.stack.split("\n");
+    } catch (_) {
+      stackTrace = [e.toString()];
+    }
   }
   let endTime = new Date().getTime();
 
@@ -57,6 +63,9 @@ for (let t of tests) {
     }
     if (crashed) {
       process.stdout.write(" CRASHED after test #" + tester.numTests + "\n");
+      for (let line of stackTrace) {
+        process.stdout.write("    " + line + "\n");
+      }
     }
   }
 }
