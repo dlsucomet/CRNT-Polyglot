@@ -16,6 +16,7 @@ export class Test implements TestFile {
     t.test(str === [
       "X1 + X2 --> 2X2 + X3",
       "X4 <--> 0",
+      "",
     ].join("\n"));
 
 
@@ -32,6 +33,7 @@ export class Test implements TestFile {
       "C4 --> 2X3 + X2",
       "A + NC + 7S --> A1 + S7",
       "0 --> X5",
+      "",
     ].join("\n"));
   }
 }
