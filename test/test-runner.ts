@@ -5,10 +5,14 @@ export interface TestFile {
 
 import { Test as ReactionTextConversion } from './reaction-text-conversion'
 import { Test as ControlFileGeneration } from './control-file-generation'
+import { Test as ErnestFileGeneration } from './ernest-file-generation'
+import { Test as CrntoolboxFileGeneration } from './crntoolbox-file-generation'
 
 let tests: Array<TestFile> = [
   new ReactionTextConversion(),
   new ControlFileGeneration(),
+  new ErnestFileGeneration(),
+  new CrntoolboxFileGeneration(),
 ];
 
 
