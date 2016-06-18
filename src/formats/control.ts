@@ -1,7 +1,7 @@
 import {ReactionNetwork, Reaction} from '../reaction';
 
-export function generateFile(rn: ReactionNetwork, modelName?: string): string {
-  return rn.map(convertReaction).join("");
+export function generateFile(rn: ReactionNetwork): string {
+  return rn.reactions.map(convertReaction).join("");
 }
 
 function convertReaction(r: Reaction): string {

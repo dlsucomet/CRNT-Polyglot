@@ -7,10 +7,10 @@ export class Test implements TestFile {
   name = "CoNtRol File Generation";
 
   run(t: Tester) {
-    let rn: R.ReactionNetwork = [
+    let rn = new R.ReactionNetwork("Test Model", [
       new R.Reaction([new R.Term(1, "X1"), new R.Term(1, "X2")], [new R.Term(2, "X2"), new R.Term(1, "X3")]),
       new R.Reaction([new R.Term(1, "X4")], [], true),
-    ];
+    ]);
 
     let str = generateFile(rn);
     t.test(str === [
@@ -20,7 +20,8 @@ export class Test implements TestFile {
     ].join("\n"));
 
 
-    rn = R.rNetworkFromString([
+    rn = R.ReactionNetwork.fromString([
+      "# Sample Model",
       "X1 <-> 7X2",
       "C4 -> 2X3 + X2",
       "1A + NC + 7S -> A1 + S7",

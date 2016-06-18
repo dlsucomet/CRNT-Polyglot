@@ -7,14 +7,15 @@ export class Test implements TestFile {
   name = "CRNToolbox File Generation";
 
   run(t: Tester) {
-    let rn = R.rNetworkFromString([
+    let rn = R.ReactionNetwork.fromString([
+      "# Sample Model",
       "X1 <-> 7X2",
       "C4 -> 2X3 + X2",
       "1A + NC + 7S -> A1 + S7",
       "0 -> X5",
     ].join("\n"));
 
-    let str = generateFile(rn, "Sample Model");
+    let str = generateFile(rn);
     t.test(str === [
       "{Sample Model}{}#3",
       "{X1,X2,X3,C4,A,NC,S,A1,S7,X5}",

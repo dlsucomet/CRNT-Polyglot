@@ -6,18 +6,19 @@ export class Test implements TestFile {
   name = "Reaction Text Conversion";
 
   run(t: Tester) {
-    let rn: R.ReactionNetwork = [
+    let rn = new R.ReactionNetwork("Test Model", [
       new R.Reaction([new R.Term(1, "X1"), new R.Term(1, "X2")], [new R.Term(2, "X2"), new R.Term(1, "X3")]),
       new R.Reaction([new R.Term(1, "X4")], [], true),
-    ];
+    ]);
 
-    let str = R.rNetworkToString(rn);
+    let str = rn.toString();
     t.test(str === [
+      "# Test Model",
       "X1 + X2 -> 2X2 + X3",
       "X4 <-> 0",
     ].join("\n"));
 
-    let undoRedo = R.rNetworkToString(R.rNetworkFromString(str));
+    let undoRedo = R.ReactionNetwork.fromString(str).toString();
     t.test(str === undoRedo, "toString and fromString must be inverses of each other");
   }
 }

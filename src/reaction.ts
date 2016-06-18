@@ -1,4 +1,23 @@
-type ReactionNetwork = Array<Reaction>;
+class ReactionNetwork {
+  modelName: string;
+  reactions: Array<Reaction>;
+
+  constructor(modelName: string, reactions: Array<Reaction>) {
+    this.modelName = modelName;
+    this.reactions = reactions;
+  }
+
+  toString(): string {
+    return "# " + this.modelName + "\n" + this.reactions.join("\n");
+  }
+
+  static fromString(s: string): ReactionNetwork {
+    let lines = s.split("\n");
+    let modelName = lines[0].substring(2);
+    let reactions = lines.slice(1).map(Reaction.fromString);
+    return new ReactionNetwork(modelName, reactions);
+  }
+}
 
 class Reaction {
   reactant: Complex;
@@ -55,13 +74,5 @@ class Term {
   }
 }
 
-function rNetworkToString(rn: ReactionNetwork) {
-  return rn.join("\n");
-}
 
-function rNetworkFromString(s: String) {
-  return s.split("\n").map(Reaction.fromString);
-}
-
-
-export { ReactionNetwork, Reaction, Complex, Term, rNetworkToString, rNetworkFromString };
+export { ReactionNetwork, Reaction, Complex, Term };
