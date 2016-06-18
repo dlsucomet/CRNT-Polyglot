@@ -14,7 +14,7 @@ export class Test implements TestFile {
       "0 -> X5",
     ].join("\n"));
 
-    let str = generateFile(rn);
+    let str = generateFile(rn, "Sample Model");
     t.test(str === [
       "{Sample Model}{}#3",
       "{X1,X2,X3,C4,A,NC,S,A1,S7,X5}",
