@@ -1,6 +1,6 @@
 import { TestFile, Tester } from './test-runner'
 
-import * as R from '../src/reaction';
+import * as R from '../src/reactions';
 import { generateFile } from '../src/formats/ernest';
 
 export class Test implements TestFile {

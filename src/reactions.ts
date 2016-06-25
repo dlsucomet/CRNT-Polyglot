@@ -9,10 +9,10 @@ class ReactionNetwork {
 
   getSpecies(): Array<string> {
     let resultSet = Object.create(null);
-    this.reactions.forEach(r => {
+    for (let r of this.reactions) {
       r.reactant.forEach(term => resultSet[term.species] = true);
       r.product.forEach(term => resultSet[term.species] = true);
-    });    
+    }
     return Object.keys(resultSet);
   }
 
@@ -40,8 +40,8 @@ class Reaction {
   }
 
   toString(): string {
-    let left = this.reactant.length ? this.reactant.join(" + ") : "0";
-    let right = this.product.length ? this.product.join(" + ") : "0";
+    let left = this.reactant.join(" + ") || "0";
+    let right = this.product.join(" + ") || "0";
     let arrow = this.reversible ? " <-> " : " -> ";    
     return left + arrow + right;
   }

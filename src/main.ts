@@ -1,4 +1,4 @@
-import { ReactionNetwork, Reaction, Complex, Term } from './reaction';
+import { ReactionNetwork, Reaction, Complex, Term } from './reactions';
 
 import * as ControlFormat from './formats/control';
 

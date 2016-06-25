@@ -1,4 +1,4 @@
-import {ReactionNetwork, Reaction, Complex} from '../reaction';
+import {ReactionNetwork, Complex} from '../reactions';
 
 export function generateFile(rn: ReactionNetwork): string {
   let buffer = "";
@@ -7,11 +7,11 @@ export function generateFile(rn: ReactionNetwork): string {
   buffer += "#3";  // custom species
   buffer += braces(rn.getSpecies());
 
-  // TODO: create a better abstraction for this  
+  // TODO: create a better abstraction for this "indexed set"
   let complexList = [];
   function complexId(complex: Complex): number {
-    // TODO: fix such that the order of the species does not matter
-    let complexString = complex.length ? complex.join(" + ") : "0";
+    // TODO: fix so that the order of the species will not matter
+    let complexString = complex.join(" + ") || "0";
     let id = complexList.indexOf(complexString);
     if (id !== -1) {
       return id + 1;
@@ -35,7 +35,7 @@ export function generateFile(rn: ReactionNetwork): string {
 }
 
 function braces(item: string|Array<any>, separator: string = ",") {
-  if (typeof item === "string") {
+  if (typeof item === 'string') {
     return "{" + item + "}";
   } else {
     return "{" + item.join(separator) + "}";
