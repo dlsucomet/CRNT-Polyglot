@@ -15,9 +15,10 @@
   },
   "scripts": {
     "build": "webpack --progress --colors",
-    "watch": "webpack --progress --colors --watch",
-    "build-and-test": "tsc -m commonjs -t es5 --outDir test/js test/test-runner.ts && npm test",
-    "test": "node test/js/test/test-runner.js"
+    "autobuild": "webpack --progress --colors --watch",
+    "build-tests": "webpack --progress --colors --config test/webpack.config.js",
+    "autobuild-tests": "webpack --progress --colors --watch --config test/webpack.config.js",
+    "test": "node test/test-bundle.js"
   },
   "devDependencies": {
     "ts-loader": "^0.8.2",

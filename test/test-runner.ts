@@ -34,10 +34,17 @@ export class Tester {
 
 declare var process;
 
+function ansiEscape(text: string, ...codes: Array<number>) {
+  return "\x1b[" + codes.join(";") + "m " + text + " \x1b[0m";
+}
+const inverted = (text: string) => ansiEscape(text, 7);
+const onGreen = (text: string) => ansiEscape(text, 42, 37, 1);
+const onRed = (text: string) => ansiEscape(text, 41, 37, 1);
+
 for (let t of tests) {
   let tester = new Tester();
   let testName = t.name;
-  process.stdout.write("\x1b[7mTESTING\x1b[0m " + testName);
+  process.stdout.write(inverted("TESTING") + " " + testName);
 
   let crashed = false;
   let stackTrace: Array<string> = null;
@@ -57,19 +64,16 @@ for (let t of tests) {
   let allPass = tester.numPass === tester.numTests;
   let score = `${tester.numPass}/${tester.numTests}`;
   let timeTaken = (endTime - startTime) / 1000;
-  
+
+  process.stdout.write("\x1b[0G"); // move cursor to the start of the line
   if (allPass && !crashed) {
-    process.stdout.write("\x1b[0G\x1b[42;37;1mPASS\x1b[0m " + testName + ` (${score} in ${timeTaken}s)\n`);
+    process.stdout.write(onGreen("PASS") + " " + testName + `(${score} in ${timeTaken}s)\n`);
   } else {
-    process.stdout.write("\x1b[0G\x1b[41;37;1mFAIL\x1b[0m " + testName + ` (${score} in ${timeTaken}s)\n`);
-    for (let err of tester.errors) {
-      process.stdout.write("  " + err + "\n");
-    }
+    process.stdout.write(onRed("FAIL") + " " + testName + ` (${score} in ${timeTaken}s)\n`);
+    tester.errors.forEach(err => process.stdout.write("  " + err + "\n"));
     if (crashed) {
       process.stdout.write(" CRASHED after test #" + tester.numTests + "\n");
-      for (let line of stackTrace) {
-        process.stdout.write("    " + line + "\n");
-      }
+      stackTrace.forEach(line => process.stdout.write("    " + line + "\n"));
     }
   }
 }
