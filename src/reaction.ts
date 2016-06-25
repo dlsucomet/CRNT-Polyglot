@@ -7,6 +7,15 @@ class ReactionNetwork {
     this.reactions = reactions;
   }
 
+  getSpecies(): Array<string> {
+    let resultSet = Object.create(null);
+    this.reactions.forEach(r => {
+      r.reactant.forEach(term => resultSet[term.species] = true);
+      r.product.forEach(term => resultSet[term.species] = true);
+    });    
+    return Object.keys(resultSet);
+  }
+
   toString(): string {
     return "# " + this.modelName + "\n" + this.reactions.join("\n");
   }
