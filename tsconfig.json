@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "jsx": "react",
+    "experimentalDecorators": true
+  },
+  "files": [
+    "src/app.tsx",
+    "typings/index.d.ts"
+  ]
+}
