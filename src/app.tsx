@@ -143,7 +143,7 @@ class ReactionInputRow extends React.Component<ReactionInputRowProps, {}> {
       <tr>
         <td>{this.props.index + 1}</td>
         <td><input value={r.left} onChange={this.updateLeftInput} placeholder="Ø" /></td>
-        <td><button onClick={this.nextArrow}>{Inputs.Arrow.toString(r.arrow)}</button></td>
+        <td><button onClick={this.nextArrow} onKeyDown={this.handleButtonKeyDown}>{Inputs.Arrow.toString(r.arrow)}</button></td>
         <td><input value={r.right} onChange={this.updateRightInput} placeholder="Ø" /></td>
         <td><button onClick={this.remove}>X</button></td>
       </tr>
@@ -165,6 +165,22 @@ class ReactionInputRow extends React.Component<ReactionInputRowProps, {}> {
   nextArrow = () => {
     let r = this.props.reaction;
     r.arrow = Inputs.Arrow.next(r.arrow);
+  }
+
+  prevArrow = () => {
+    let r = this.props.reaction;
+    r.arrow = Inputs.Arrow.prev(r.arrow);
+  }
+
+  handleButtonKeyDown = (e: KeyboardEvent) => {
+    switch(e.key) {
+      case "ArrowDown": case "ArrowRight":
+        this.nextArrow();
+        return;
+      case "ArrowUp": case "ArrowLeft":
+        this.prevArrow();
+        return;
+    }
   }
 
   remove = () => {
