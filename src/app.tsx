@@ -10,22 +10,26 @@ namespace Inputs {
 
     constructor() {
       this.modelName = "";
-      this.reactions = [new Reaction()];
+      this.reactions = [Reaction.newEmpty()];
     }
 
-    addReaction() {
-      this.reactions.push(new Reaction());
+    addReaction(r: Reaction) {
+      this.reactions.push(r);
+    }
+
+    addEmptyReaction() {
+      this.addReaction(Reaction.newEmpty());
     }
 
     removeReaction(index: number) {
       this.reactions.splice(index, 1);
       if (this.reactions.length < 1) {
-        this.reactions.push(new Reaction());
+        this.addReaction(Reaction.newEmpty());
       }
     }
 
     clearReactions() {
-      this.reactions = [new Reaction()];
+      this.reactions = [Reaction.newEmpty()];
     }
   }
 
@@ -35,11 +39,15 @@ namespace Inputs {
     @observable right: string;
     @observable arrow: Arrow;
 
-    constructor() {
+    constructor(left: string, arrow: Arrow, right: string) {
       this.reactKey = Math.random(); // TODO: use actual keys
-      this.left = "";
-      this.right = "";
-      this.arrow = Arrow.ToRight;
+      this.left = left;
+      this.right = right;
+      this.arrow = arrow;
+    }
+
+    static newEmpty() {
+      return new Reaction("", Arrow.ToRight, "");
     }
   }
 
@@ -85,8 +93,9 @@ class ReactionNetworkInputTable extends React.Component<{ reactionNetwork: Input
               <ReactionInputRow key={r.reactKey} index={i} reaction={r} onRemove={this.removeReaction} />)}
           </tbody>
         </table>
-        <button onClick={this.addReaction}>Add Reaction</button>
+        <button onClick={this.addEmptyReaction}>Add Reaction</button>
         <button onClick={this.clearReactions}>Clear Reactions</button>
+        <AddIndependentReactionsForm onAdd={this.addIndependentReactions}/>
       </div>
     );
   }
@@ -97,9 +106,15 @@ class ReactionNetworkInputTable extends React.Component<{ reactionNetwork: Input
     rn.modelName = modelNameInput.value;
   }
 
-  addReaction = () => {
+  addEmptyReaction = () => {
     let rn = this.props.reactionNetwork;
-    rn.addReaction();
+    rn.addEmptyReaction();
+  }
+
+  addIndependentReactions = (species: string, startIndex: number, endIndex: number) => {
+    for (let i = startIndex; i <= endIndex; i++) {
+      rn.addReaction(new Inputs.Reaction(species + i, Inputs.Arrow.ToRight, ""));
+    }
   }
 
   removeReaction = (index: number) => {
@@ -155,6 +170,38 @@ class ReactionInputRow extends React.Component<ReactionInputRowProps, {}> {
   remove = () => {
     let i = this.props.index;
     this.props.onRemove(i);
+  }
+}
+
+interface AddIndependentReactionsFormProps {
+  onAdd: (species: string, startIndex: number, endIndex: number) => void;
+}
+
+class AddIndependentReactionsForm extends React.Component<AddIndependentReactionsFormProps, {}> {
+  speciesInput: HTMLInputElement;
+  startIndexInput: HTMLInputElement;
+  endIndexInput: HTMLInputElement;
+  
+  render() {
+    return (
+      <div>
+        <h2>Add Independent Reactions</h2>
+        <label>Species</label>
+        <input ref={(ref) => this.speciesInput= ref} />
+        <label>Start Index</label>
+        <input type="number" ref={(ref) => this.startIndexInput= ref} />
+        <label>End Index</label>
+        <input type="number" ref={(ref) => this.endIndexInput= ref} />
+        <button onClick={this.add}>Add</button>
+      </div>
+    );
+  }
+
+  add = () => {
+    let species = this.speciesInput.value;
+    let startIndex = Number(this.startIndexInput.value);
+    let endIndex = Number(this.endIndexInput.value);
+    this.props.onAdd(species, startIndex, endIndex);
   }
 }
 
