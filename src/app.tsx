@@ -133,6 +133,34 @@ function resizeToFitText(elem: HTMLElement, padding: number = 0) {
   elem.style.height = (elem.scrollHeight - padding) + "px";
 }
 
+class AutoResizingInput extends React.Component<any, {}> {
+  textArea: HTMLTextAreaElement;
+  textAreaRef = (ref) => { this.textArea = ref; };
+  padding: number;
+
+  componentDidMount() {
+    let topPadding = getComputedStyle(this.textArea).getPropertyValue("padding-top"); 
+    let bottomPadding = getComputedStyle(this.textArea).getPropertyValue("padding-bottom");
+    this.padding = parseInt(topPadding) + parseInt(bottomPadding);
+    resizeToFitText(this.textArea, this.padding);
+  }
+
+  render() {
+    return (
+      <textarea {...this.props} onChange={this.handleChange} ref={this.textAreaRef} />
+    );
+  }
+
+  handleChange = (e: Event) => {
+    this.textArea.value = this.textArea.value.replace(/\r?\n/g, "");
+
+    let onChangeFunc = this.props.onChange;
+    if (onChangeFunc) { onChangeFunc(e); }
+
+    resizeToFitText(this.textArea, this.padding);
+  }
+}
+
 interface ReactionInputRowProps {
   index: number;
   reaction: Inputs.Reaction;
@@ -141,46 +169,30 @@ interface ReactionInputRowProps {
 
 @observer
 class ReactionInputRow extends React.Component<ReactionInputRowProps, {}> {
-  leftTextArea: HTMLTextAreaElement;
-  rightTextArea: HTMLTextAreaElement;
-
-  leftTextAreaRef = (ref) => { this.leftTextArea = ref; }
-  rightTextAreaRef = (ref) => { this.rightTextArea = ref; }
-
-  textAreaPadding: number;
-
-  componentDidMount() {
-    let topPadding = getComputedStyle(this.leftTextArea).getPropertyValue("padding-top"); 
-    let bottomPadding = getComputedStyle(this.leftTextArea).getPropertyValue("padding-bottom");
-    this.textAreaPadding = parseInt(topPadding) + parseInt(bottomPadding);
-    resizeToFitText(this.leftTextArea, this.textAreaPadding);
-    resizeToFitText(this.rightTextArea, this.textAreaPadding);
-  }
-
   render() {
     let r = this.props.reaction;
 
     return (
       <tr>
         <td>{this.props.index + 1}</td>
-        <td><textarea value={r.left} onChange={this.updateLeft} ref={this.leftTextAreaRef} placeholder="Ø" /></td>
+        <td><AutoResizingInput value={r.left} onChange={this.updateLeft} placeholder="Ø" /></td>
         <td><button onClick={this.nextArrow} onKeyDown={this.handleButtonKeyDown}>{Inputs.Arrow.toString(r.arrow)}</button></td>
-        <td><textarea value={r.right} onChange={this.updateRight} ref={this.rightTextAreaRef} placeholder="Ø" /></td>
+        <td><AutoResizingInput value={r.right} onChange={this.updateRight} placeholder="Ø" /></td>
         <td><button onClick={this.remove}>X</button></td>
       </tr>
     );
   }
 
-  updateLeft = () => {
+  updateLeft = (e: Event) => {
+    let leftInput = e.target as HTMLTextAreaElement;
     let r = this.props.reaction;
-    r.left = this.leftTextArea.value;
-    resizeToFitText(this.leftTextArea, this.textAreaPadding);
+    r.left = leftInput.value;
   }
 
-  updateRight = () => {
+  updateRight = (e: Event) => {
+    let rightInput = e.target as HTMLTextAreaElement;
     let r = this.props.reaction;
-    r.right = this.rightTextArea.value;
-    resizeToFitText(this.rightTextArea, this.textAreaPadding);
+    r.right = rightInput.value;
   }
 
   nextArrow = () => {
