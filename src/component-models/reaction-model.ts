@@ -12,8 +12,8 @@ export class ReactionModel {
   @observable arrow: Arrow = Arrow.ToRight;
 
   constructor(reactionNetwork: ReactionNetworkModel) {
-    this.reactKey = Math.random(); // TODO: use actual keys
     this.reactionNetwork = reactionNetwork;
+    this.reactKey = reactionNetwork.reactionKeyGenerator.next();
   }
 
   @computed get asReaction(): Reaction {

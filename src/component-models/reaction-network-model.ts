@@ -1,9 +1,13 @@
 import {observable, computed} from 'mobx';
 
 import {ReactionModel, Arrow} from '../component-models/reaction-model';
-import {ReactionNetwork} from '../reactions'
+import {ReactionNetwork} from '../reactions';
+
+import ReactKeyGenerator from '../react-key-generator';
 
 export default class ReactionNetworkModel {
+  reactionKeyGenerator: ReactKeyGenerator = new ReactKeyGenerator();
+
   @observable modelName: string = "";
   @observable reactions: Array<ReactionModel> = [new ReactionModel(this)];
 
@@ -39,6 +43,7 @@ export default class ReactionNetworkModel {
   }
 
   clearReactions() {
+    this.reactionKeyGenerator.reset();
     this.reactions = [new ReactionModel(this)];
   }
 }
