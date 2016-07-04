@@ -4,8 +4,7 @@
     "jsx": "react",
     "experimentalDecorators": true
   },
-  "files": [
-    "src/app.tsx",
-    "typings/index.d.ts"
+  "exclude": [
+    "node_modules"
   ]
 }
