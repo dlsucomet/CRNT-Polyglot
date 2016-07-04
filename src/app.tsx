@@ -5,49 +5,49 @@ import {observer} from 'mobx-react';
 
 namespace Inputs {
   export class ReactionNetwork {
-    @observable modelName: string;
-    @observable reactions: Array<Reaction>;
-
-    constructor() {
-      this.modelName = "";
-      this.reactions = [Reaction.newEmpty()];
-    }
+    @observable modelName: string = "";
+    @observable reactions: Array<Reaction> = [new Reaction(this)];
 
     addReaction(r: Reaction) {
       this.reactions.push(r);
     }
 
     addEmptyReaction() {
-      this.addReaction(Reaction.newEmpty());
+      this.addReaction(new Reaction(this));
+    }
+
+    addIndepReaction(variable: string, startIndex: number, endIndex: number) {
+      for (let i = startIndex; i <= endIndex; i++) {
+        let r = new Reaction(this);
+        r.left = variable + i;
+        r.arrow = Arrow.Both;
+        r.right = "";
+        this.addReaction(r);
+      }
     }
 
     removeReaction(index: number) {
       this.reactions.splice(index, 1);
       if (this.reactions.length < 1) {
-        this.addReaction(Reaction.newEmpty());
+        this.addReaction(new Reaction(this));
       }
     }
 
     clearReactions() {
-      this.reactions = [Reaction.newEmpty()];
+      this.reactions = [new Reaction(this)];
     }
   }
 
   export class Reaction {
     reactKey: number;
-    @observable left: string;
-    @observable right: string;
-    @observable arrow: Arrow;
+    reactionNetwork: ReactionNetwork;
+    @observable left: string = "";
+    @observable right: string = "";
+    @observable arrow: Arrow = Arrow.ToRight;
 
-    constructor(left: string, arrow: Arrow, right: string) {
+    constructor(reactionNetwork: ReactionNetwork) {
       this.reactKey = Math.random(); // TODO: use actual keys
-      this.left = left;
-      this.right = right;
-      this.arrow = arrow;
-    }
-
-    static newEmpty() {
-      return new Reaction("", Arrow.ToRight, "");
+      this.reactionNetwork = reactionNetwork;
     }
   }
 
@@ -80,7 +80,7 @@ namespace Inputs {
 }
 
 @observer
-class ReactionNetworkInputTable extends React.Component<{ reactionNetwork: Inputs.ReactionNetwork }, {}> {
+class ReactionNetworkTable extends React.Component<{ reactionNetwork: Inputs.ReactionNetwork }, {}> {
   render() {
     let rn = this.props.reactionNetwork;
 
@@ -90,7 +90,7 @@ class ReactionNetworkInputTable extends React.Component<{ reactionNetwork: Input
         <table>
           <tbody>
             {rn.reactions.map((r, i) =>
-              <ReactionInputRow key={r.reactKey} index={i} reaction={r} onRemove={this.removeReaction} />)}
+              <ReactionRow key={r.reactKey} index={i} reaction={r} />)}
           </tbody>
         </table>
         <button onClick={this.addEmptyReaction}>Add Reaction</button>
@@ -111,10 +111,9 @@ class ReactionNetworkInputTable extends React.Component<{ reactionNetwork: Input
     rn.addEmptyReaction();
   }
 
-  addIndependentReactions = (species: string, startIndex: number, endIndex: number) => {
-    for (let i = startIndex; i <= endIndex; i++) {
-      rn.addReaction(new Inputs.Reaction(species + i, Inputs.Arrow.ToRight, ""));
-    }
+  addIndependentReactions = (variable: string, startIndex: number, endIndex: number) => {
+    let rn = this.props.reactionNetwork;
+    rn.addIndepReaction(variable, startIndex, endIndex);
   }
 
   removeReaction = (index: number) => {
@@ -161,14 +160,8 @@ class AutoResizingInput extends React.Component<any, {}> {
   }
 }
 
-interface ReactionInputRowProps {
-  index: number;
-  reaction: Inputs.Reaction;
-  onRemove: (index: number) => void;
-}
-
 @observer
-class ReactionInputRow extends React.Component<ReactionInputRowProps, {}> {
+class ReactionRow extends React.Component<{ index: number, reaction: Inputs.Reaction }, {}> {
   render() {
     let r = this.props.reaction;
 
@@ -217,8 +210,9 @@ class ReactionInputRow extends React.Component<ReactionInputRowProps, {}> {
   }
 
   remove = () => {
+    let r = this.props.reaction;
     let i = this.props.index;
-    this.props.onRemove(i);
+    r.reactionNetwork.removeReaction(i);
   }
 }
 
@@ -255,4 +249,4 @@ class AddIndependentReactionsForm extends React.Component<AddIndependentReaction
 }
 
 let rn = new Inputs.ReactionNetwork();
-ReactDOM.render(<ReactionNetworkInputTable reactionNetwork={rn} />, document.getElementById('root'));
+ReactDOM.render(<ReactionNetworkTable reactionNetwork={rn} />, document.getElementById('root'));
