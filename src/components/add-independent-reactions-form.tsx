@@ -3,8 +3,13 @@ import {observer} from 'mobx-react';
 
 import FormModel from '../component-models/add-form-model';
 
+interface Props {
+  model: FormModel;
+  onAdd: (v: string, s: number, e: number) => void;
+}
+
 @observer
-export default class AddIndependentReactionsForm extends React.Component<{model: FormModel}, {}> {
+export default class AddIndependentReactionsForm extends React.Component<Props, {}> {
   render() {
     let m = this.props.model;
 
@@ -42,6 +47,6 @@ export default class AddIndependentReactionsForm extends React.Component<{model:
   
   add = () => {
     let m = this.props.model;
-    m.reactionNetwork.addIndependentReactions(m.variable, m.startIndex, m.endIndex);
+    this.props.onAdd(m.variable, m.startIndex, m.endIndex);
   }
 }

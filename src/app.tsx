@@ -13,7 +13,7 @@ import AddIndependentReactionsForm from './components/add-independent-reactions-
 class AppModel {
   @observable reactionNetwork: ReactionNetworkModel = new ReactionNetworkModel();
   @observable showForm: boolean = false;
-  @observable formModel: FormModel = new FormModel(this.reactionNetwork);
+  @observable formModel: FormModel = new FormModel();
   @computed get generatedFiles() {
     return null;
   }
@@ -23,12 +23,49 @@ class AppModel {
 class App extends React.Component<{model: AppModel}, {}> {
   render() {
     let m = this.props.model;
+    let rn = m.reactionNetwork;
+
     return (
       <div>
+        <input value={rn.modelName} onChange={this.updateModelName} placeholder="Unnamed Model" />
         <ReactionNetworkTable reactionNetwork={m.reactionNetwork} />
-        <AddIndependentReactionsForm model={m.formModel} />
+        <button onClick={this.addEmptyReaction}>Add Reaction</button>
+        <button onClick={this.showAddForm}>Add Independent Reactions</button>
+        <button onClick={this.clearReactions}>Clear Reactions</button>
+
+        {m.showForm
+          ? <AddIndependentReactionsForm model={m.formModel} onAdd={this.addIndependentReactions} /> 
+          : <div />}
       </div>
     );
+  }
+
+  updateModelName = (e: Event) => {
+    let modelNameInput = e.target as HTMLInputElement;
+    let rn = this.props.model.reactionNetwork;
+    rn.modelName = modelNameInput.value;
+  }
+
+  addEmptyReaction = () => {
+    let rn = this.props.model.reactionNetwork;
+    rn.addEmptyReaction();
+  }
+
+  showAddForm = () => {
+    let m = this.props.model;
+    m.showForm = !m.showForm;
+  }
+
+  addIndependentReactions = (variable: string, startIndex: number, endIndex: number) => {
+    let m = this.props.model;
+    let rn = m.reactionNetwork;
+    rn.addIndependentReactions(variable, startIndex, endIndex);
+    m.showForm = false;
+  }
+
+  clearReactions = () => {
+    let rn = this.props.model.reactionNetwork;
+    rn.clearReactions();
   }
 }
 
