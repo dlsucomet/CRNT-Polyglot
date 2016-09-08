@@ -1,11 +1,8 @@
 class ReactionNetwork {
-  modelName: string;
-  reactions: Array<Reaction>;
-
-  constructor(modelName: string, reactions: Array<Reaction>) {
-    this.modelName = modelName;
-    this.reactions = reactions;
-  }
+  constructor(
+    public modelName: string, 
+    public reactions: Array<Reaction>
+  ) { }
 
   getSpecies(): Array<string> {
     let resultSet = Object.create(null);
@@ -29,15 +26,11 @@ class ReactionNetwork {
 }
 
 class Reaction {
-  reactant: Complex;
-  product: Complex;
-  reversible: boolean;
-
-  constructor(reactant: Complex, product: Complex, reversible: boolean = false) {
-    this.reactant = reactant;
-    this.product = product;
-    this.reversible = reversible;
-  }
+  constructor(
+    public reactant: Complex, 
+    public product: Complex, 
+    public reversible: boolean = false
+  ) { }
 
   toString(): string {
     let left = this.reactant.join(" + ") || "0";
@@ -59,13 +52,10 @@ class Reaction {
 type Complex = Array<Term>;
 
 class Term {
-  coefficient: number;
-  species: string;
-
-  constructor(coefficient: number, species: string) {
-    this.coefficient = coefficient;
-    this.species = species;
-  }
+  constructor(
+    public coefficient: number, 
+    public species: string
+  ) { }
 
   toString(): string {
     if (this.coefficient === 1) {
