@@ -38,8 +38,8 @@ function ansiEscape(text: string, ...codes: Array<number>) {
   return "\x1b[" + codes.join(";") + "m " + text + " \x1b[0m";
 }
 const inverted = (text: string) => ansiEscape(text, 7);
-const onGreen = (text: string) => ansiEscape(text, 42, 37, 1);
-const onRed = (text: string) => ansiEscape(text, 41, 37, 1);
+const greenBg = (text: string) => ansiEscape(text, 42, 37, 1);
+const redBg = (text: string) => ansiEscape(text, 41, 37, 1);
 
 for (let t of tests) {
   let tester = new Tester();
@@ -67,9 +67,9 @@ for (let t of tests) {
 
   process.stdout.write("\x1b[0G"); // move cursor to the start of the line
   if (allPass && !crashed) {
-    process.stdout.write(onGreen("PASS") + " " + testName + `(${score} in ${timeTaken}s)\n`);
+    process.stdout.write(`${greenBg("PASS")} ${testName} (${score} in ${timeTaken}s)\n`);
   } else {
-    process.stdout.write(onRed("FAIL") + " " + testName + ` (${score} in ${timeTaken}s)\n`);
+    process.stdout.write(`${redBg("FAIL")} ${testName} (${score} in ${timeTaken}s)\n`);
     tester.errors.forEach(err => process.stdout.write("  " + err + "\n"));
     if (crashed) {
       process.stdout.write(" CRASHED after test #" + tester.numTests + "\n");
