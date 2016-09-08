@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import {observable, computed} from 'mobx';
+import {observable, computed, action, useStrict} from 'mobx';
 import {observer} from 'mobx-react';
 
 import {ReactionNetworkModel} from './component-models/reaction-network-model';
@@ -14,6 +14,8 @@ import {generateFile as controlFile} from './formats/control';
 import {generateFile as crntollboxFile} from './formats/crntoolbox';
 import {generateFile as ernestFile} from './formats/ernest';
 
+useStrict(true);
+
 class AppModel {
   @observable reactionNetwork: ReactionNetworkModel = new ReactionNetworkModel();
   @observable showForm: boolean = false;
@@ -25,6 +27,14 @@ class AppModel {
       crntollboxFile(rn),
       ernestFile(rn),
     ];
+  }
+
+  @action hideForm() {
+    this.showForm = false;
+  }
+
+  @action toggleForm() {
+    this.showForm = !this.showForm;
   }
 }
 
@@ -55,7 +65,7 @@ class App extends React.Component<{model: AppModel}, {}> {
   updateModelName = (e: Event) => {
     let modelNameInput = e.target as HTMLInputElement;
     let rn = this.props.model.reactionNetwork;
-    rn.modelName = modelNameInput.value;
+    rn.setModelName(modelNameInput.value);
   }
 
   addEmptyReaction = () => {
@@ -65,14 +75,14 @@ class App extends React.Component<{model: AppModel}, {}> {
 
   showAddForm = () => {
     let m = this.props.model;
-    m.showForm = !m.showForm;
+    m.toggleForm();
   }
 
   addIndependentReactions = (variable: string, startIndex: number, endIndex: number) => {
     let m = this.props.model;
     let rn = m.reactionNetwork;
     rn.addIndependentReactions(variable, startIndex, endIndex);
-    m.showForm = false;
+    m.hideForm();
   }
 
   clearReactions = () => {

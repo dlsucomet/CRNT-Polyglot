@@ -30,19 +30,19 @@ export default class AddIndependentReactionsForm extends React.Component<Props, 
   updateVariable = (e: Event) => {
     let input = e.target as HTMLInputElement;
     let m = this.props.model;
-    m.variable = input.value;
+    m.setVariable(input.value);
   }
 
   updateStartIndex = (e: Event) => {
     let input = e.target as HTMLInputElement;
     let m = this.props.model;
-    m.startIndex = parseInt(input.value);
+    m.setStartIndex(parseInt(input.value));
   }
 
   updateEndIndex = (e: Event) => {
     let input = e.target as HTMLInputElement;
     let m = this.props.model;
-    m.endIndex = parseInt(input.value);
+    m.setEndIndex(parseInt(input.value));
   }
   
   add = () => {

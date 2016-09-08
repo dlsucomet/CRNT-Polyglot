@@ -39,23 +39,23 @@ class ReactionRow extends React.Component<{index: number, reaction: ReactionMode
   updateLeft = (e: Event) => {
     let leftInput = e.target as HTMLTextAreaElement;
     let r = this.props.reaction;
-    r.left = leftInput.value;
+    r.setLeft(leftInput.value);
   }
 
   updateRight = (e: Event) => {
     let rightInput = e.target as HTMLTextAreaElement;
     let r = this.props.reaction;
-    r.right = rightInput.value;
+    r.setRight(rightInput.value);
   }
 
   nextArrow = () => {
     let r = this.props.reaction;
-    r.arrow = Arrow.next(r.arrow);
+    r.nextArrow();
   }
 
   prevArrow = () => {
     let r = this.props.reaction;
-    r.arrow = Arrow.prev(r.arrow);
+    r.prevArrow();
   }
 
   handleButtonKeyDown = (e: KeyboardEvent) => {

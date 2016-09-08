@@ -1,4 +1,4 @@
-import {observable, computed} from 'mobx';
+import {observable, computed, action} from 'mobx';
 
 import * as R from '../reactions';
 
@@ -16,15 +16,19 @@ export class ReactionNetworkModel {
     return new R.ReactionNetwork(modelName, reactions);
   }
 
-  addReaction(r: ReactionModel) {
+  @action setModelName(name: string) {
+    this.modelName = name;
+  }
+
+  @action addReaction(r: ReactionModel) {
     this.reactions.push(r);
   }
 
-  addEmptyReaction() {
+  @action addEmptyReaction() {
     this.addReaction(new ReactionModel(this));
   }
 
-  addIndependentReactions(variable: string, startIndex: number, endIndex: number) {
+  @action addIndependentReactions(variable: string, startIndex: number, endIndex: number) {
     for (let i = startIndex; i <= endIndex; i++) {
       let r = new ReactionModel(this);
       r.left = variable + i;
@@ -34,14 +38,14 @@ export class ReactionNetworkModel {
     }
   }
 
-  removeReaction(index: number) {
+  @action removeReaction(index: number) {
     this.reactions.splice(index, 1);
     if (this.reactions.length < 1) {
       this.addReaction(new ReactionModel(this));
     }
   }
 
-  clearReactions() {
+  @action clearReactions() {
     this.reactionKeyGenerator.reset();
     this.reactions = [new ReactionModel(this)];
   }
@@ -70,6 +74,26 @@ export class ReactionModel {
     let reversible = this.arrow === Arrow.BothWays;
 
     return new R.Reaction(reactant, product, reversible);
+  }
+
+  @action setLeft(inputStr: string) {
+    this.left = inputStr;
+  }
+
+  @action setRight(inputStr: string) {
+    this.right = inputStr;
+  }
+
+  @action setArrow(a: Arrow) {
+    this.arrow = a;
+  }
+
+  @action nextArrow() {
+    this.arrow = Arrow.next(this.arrow);
+  }
+
+  @action prevArrow() {
+    this.arrow = Arrow.prev(this.arrow);
   }
 
   static inputToComplex(inputString: string): R.Complex {
