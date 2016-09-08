@@ -10,12 +10,21 @@ import FormModel from './component-models/add-form-model';
 import ReactionNetworkTable from './components/reaction-network-table';
 import AddIndependentReactionsForm from './components/add-independent-reactions-form';
 
+import {generateFile as controlFile} from './formats/control';
+import {generateFile as crntollboxFile} from './formats/crntoolbox';
+import {generateFile as ernestFile} from './formats/ernest';
+
 class AppModel {
   @observable reactionNetwork: ReactionNetworkModel = new ReactionNetworkModel();
   @observable showForm: boolean = false;
   @observable formModel: FormModel = new FormModel();
   @computed get generatedFiles() {
-    return null;
+    let rn = this.reactionNetwork.asReactionNetwork;
+    return [
+      controlFile(rn),
+      crntollboxFile(rn),
+      ernestFile(rn),
+    ];
   }
 }
 
@@ -36,6 +45,9 @@ class App extends React.Component<{model: AppModel}, {}> {
         {m.showForm
           ? <AddIndependentReactionsForm model={m.formModel} onAdd={this.addIndependentReactions} /> 
           : <div />}
+
+        {m.generatedFiles.map(file =>
+          <pre>{file}</pre>)}
       </div>
     );
   }
