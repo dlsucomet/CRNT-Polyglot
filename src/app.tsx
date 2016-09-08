@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import {observable, computed} from 'mobx';
 import {observer} from 'mobx-react';
 
-import ReactionNetworkModel from './component-models/reaction-network-model';
+import {ReactionNetworkModel} from './component-models/reaction-network-model';
 import FormModel from './component-models/add-form-model';
 
 import ReactionNetworkTable from './components/reaction-network-table';
