@@ -28,12 +28,35 @@ class ReactionRow extends React.Component<{index: number, reaction: ReactionMode
     return (
       <li className="reaction-row" data-index={this.props.index}>
         <span className="row-number">{this.props.index + 1}</span>
-        <AutoResizingInput className={"left-input" + (leftErr ? " has-error" : "")} value={r.left} onChange={this.updateLeft} onBlur={this.enteredLeft} placeholder="Ø" />
+        <AutoResizingInput className={"left-input" + (leftErr ? " has-error" : "")} value={r.left} onChange={this.updateLeft} onBlur={this.enteredLeft} onKeyUp={this.nextReaction} placeholder="Ø" />
         <button className="arrow-button" onClick={this.nextArrow} onKeyDown={this.handleButtonKeyDown}>{Arrow.toString(r.arrow)}</button>
-        <AutoResizingInput className={"right-input" + (rightErr ? " has-error" : "")} value={r.right} onChange={this.updateRight} onBlur={this.enteredRight} placeholder="Ø" />
+        <AutoResizingInput className={"right-input" + (rightErr ? " has-error" : "")} value={r.right} onChange={this.updateRight} onBlur={this.enteredRight} onKeyUp={this.nextReaction} placeholder="Ø" />
         <button className="remove-button" onClick={this.remove}>X</button>
       </li>
     );
+  }
+
+  nextReaction = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
+
+      let rn = this.props.reaction.reactionNetwork;
+      let i = this.props.index;
+
+      if (i+1 === rn.reactions.length) {
+        rn.addEmptyReaction();
+      }
+
+      window.setTimeout(function() {  // timeout to allow the browser to create the new row first
+        let nextRowInput =  document.querySelector(`.reaction-row[data-index="${i+1}"] > .left-input`) as HTMLInputElement;
+        nextRowInput.focus();
+
+        // move cursor to the end
+        let theEnd = nextRowInput.value.length;
+        nextRowInput.setSelectionRange(theEnd, theEnd);
+      });
+    }
   }
 
   enteredLeft = (e: Event) => {
