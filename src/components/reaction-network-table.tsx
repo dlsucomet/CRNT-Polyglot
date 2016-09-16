@@ -22,16 +22,28 @@ export default class ReactionNetworkTable extends React.Component<{reactionNetwo
 class ReactionRow extends React.Component<{index: number, reaction: ReactionModel}, {}> {
   render() {
     let r = this.props.reaction;
+    let leftErr = r.hasEnteredErrorLeft && r.hasErrorLeft;
+    let rightErr = r.hasEnteredErrorRight && r.hasErrorRight;
 
     return (
       <li className="reaction-row" data-index={this.props.index}>
         <span className="row-number">{this.props.index + 1}</span>
-        <AutoResizingInput className="left-input" value={r.left} onChange={this.updateLeft} placeholder="Ø" />
+        <AutoResizingInput className={"left-input" + (leftErr ? " has-error" : "")} value={r.left} onChange={this.updateLeft} onBlur={this.enteredLeft} placeholder="Ø" />
         <button className="arrow-button" onClick={this.nextArrow} onKeyDown={this.handleButtonKeyDown}>{Arrow.toString(r.arrow)}</button>
-        <AutoResizingInput className="right-input" value={r.right} onChange={this.updateRight} placeholder="Ø" />
+        <AutoResizingInput className={"right-input" + (rightErr ? " has-error" : "")} value={r.right} onChange={this.updateRight} onBlur={this.enteredRight} placeholder="Ø" />
         <button className="remove-button" onClick={this.remove}>X</button>
       </li>
     );
+  }
+
+  enteredLeft = (e: Event) => {
+    let r= this.props.reaction;
+    r.enteredErrorLeft(r.hasErrorLeft);
+  }
+
+  enteredRight = (e: Event) => {
+    let r= this.props.reaction;
+    r.enteredErrorRight(r.hasErrorRight);
   }
 
   updateLeft = (e: Event) => {

@@ -75,3 +75,8 @@ html {
   color: white;
   margin-left: 12px;
 }
+
+.has-error {
+  background: #fba0a0;
+  border: solid red 1px;
+}

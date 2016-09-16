@@ -16,6 +16,10 @@ export class ReactionNetworkModel {
     return new R.ReactionNetwork(modelName, reactions);
   }
 
+  @computed get hasError(): boolean {
+    return this.reactions.some(r => r.hasError);
+  }
+
   @action setModelName(name: string) {
     this.modelName = name;
   }
@@ -59,14 +63,29 @@ export class ReactionModel {
   @observable right: string = "";
   @observable arrow: Arrow = Arrow.ToRight;
 
+  @observable hasEnteredErrorLeft: boolean = false;
+  @observable hasEnteredErrorRight: boolean = false;
+
+  @computed get hasError(): boolean {
+    return this.hasErrorLeft || this.hasErrorRight;
+  }
+
+  @computed get hasErrorLeft(): boolean {
+    return ReactionModel.inputToComplex(this.left) === null;
+  }
+
+  @computed get hasErrorRight(): boolean {
+    return ReactionModel.inputToComplex(this.right) === null;
+  }
+
   constructor(reactionNetwork: ReactionNetworkModel) {
     this.reactionNetwork = reactionNetwork;
     this.reactKey = reactionNetwork.reactionKeyGenerator.next();
   }
 
   @computed get asReaction(): R.Reaction {
-    let reactant = ReactionModel.inputToComplex(this.left || "0");
-    let product = ReactionModel.inputToComplex(this.right || "0");
+    let reactant = ReactionModel.inputToComplex(this.left);
+    let product = ReactionModel.inputToComplex(this.right);
 
     if (this.arrow === Arrow.ToLeft) {
       [reactant, product] = [product, reactant];
@@ -96,25 +115,39 @@ export class ReactionModel {
     this.arrow = Arrow.prev(this.arrow);
   }
 
+  @action enteredErrorLeft(b: boolean) {
+    this.hasEnteredErrorLeft = b;
+  }
+
+  @action enteredErrorRight(b: boolean) {
+    this.hasEnteredErrorRight = b;
+  }
+
   static inputToComplex(inputString: string): R.Complex {
-    inputString = inputString.trim();
+    inputString = inputString.trim() || "0";
     if (inputString === "0") {
       return [];
     }
 
-    let terms = (
-      inputString
-        .split(/\s*\+\s*/)
-        .map(str => {
-          let g = str.match(/^(\d*)\s*(\S+)$/);
-          // TODO: Check if match fails
-          let coeff = g[1] ? parseInt(g[1]) : 1;
-          let species = g[2];
-          return new R.Term(coeff, species);
-        })
-    );
+    try {
+      let terms = (
+        inputString
+          .split(/\s*\+\s*/)
+          .map(str => {
+            let g = str.match(/^(\d*)\s*([a-zA-Z_]\w*)$/);
+            if (g === null) {
+              throw "invalid term: " + str;
+            }
+            let coeff = g[1] ? parseInt(g[1]) : 1;
+            let species = g[2];
+            return new R.Term(coeff, species);
+          })
+      );
 
-    return terms;
+      return terms;
+    } catch(e) {
+      return null;
+    }
   }
 }
 
