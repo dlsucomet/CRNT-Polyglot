@@ -10,12 +10,10 @@ export default class ReactionNetworkTable extends React.Component<{reactionNetwo
     let rn = this.props.reactionNetwork;
 
     return (
-      <table>
-        <tbody>
-          {rn.reactions.map((r, i) =>
-            <ReactionRow key={r.reactKey} index={i} reaction={r} />)}
-        </tbody>
-      </table>
+      <ol className="reaction-table">
+        {rn.reactions.map((r, i) =>
+          <ReactionRow key={r.reactKey} index={i} reaction={r} />)}
+      </ol>
     );
   }
 }
@@ -26,13 +24,13 @@ class ReactionRow extends React.Component<{index: number, reaction: ReactionMode
     let r = this.props.reaction;
 
     return (
-      <tr>
-        <td>{this.props.index + 1}</td>
-        <td><AutoResizingInput value={r.left} onChange={this.updateLeft} placeholder="Ø" /></td>
-        <td><button onClick={this.nextArrow} onKeyDown={this.handleButtonKeyDown}>{Arrow.toString(r.arrow)}</button></td>
-        <td><AutoResizingInput value={r.right} onChange={this.updateRight} placeholder="Ø" /></td>
-        <td><button onClick={this.remove}>X</button></td>
-      </tr>
+      <li className="reaction-row" data-index={this.props.index}>
+        <span className="row-number">{this.props.index + 1}</span>
+        <AutoResizingInput className="left-input" value={r.left} onChange={this.updateLeft} placeholder="Ø" />
+        <button className="arrow-button" onClick={this.nextArrow} onKeyDown={this.handleButtonKeyDown}>{Arrow.toString(r.arrow)}</button>
+        <AutoResizingInput className="right-input" value={r.right} onChange={this.updateRight} placeholder="Ø" />
+        <button className="remove-button" onClick={this.remove}>X</button>
+      </li>
     );
   }
 

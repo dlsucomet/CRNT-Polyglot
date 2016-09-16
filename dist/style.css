@@ -1,0 +1,77 @@
+html {
+  box-sizing: border-box;
+  font-family: "Open Sans";
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+  font-family: inherit;
+}
+
+#root {
+  width: 960px;
+  margin: auto;
+}
+
+.reaction-table {
+  border-collapse: collapse;
+  list-style-type: none;
+  padding: 0;
+}
+
+.reaction-row > * {
+  vertical-align: middle;
+}
+
+.reaction-row:nth-child(odd) {
+  background: #f2f2f2;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+
+.reaction-row:nth-child(even) {
+  padding: 15px;
+}
+
+.left-input, .right-input {
+    box-sizing: content-box;
+    resize: none;
+    width: 392px;
+    padding: 4px 8px;
+    border: solid #d8d8d8 1px;
+    margin: 0;
+    font-size: 16px;
+}
+
+.left-input {
+  text-align: right;
+}
+
+.row-number {
+  display: inline-block;
+  text-align: right;
+  width: 24px;
+  margin-right: 8px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.arrow-button, .remove-button {
+  border-radius: 5px;
+  width: 25px;
+  height: 25px;
+  border: 0;
+  font-weight: bold;
+}
+
+.arrow-button {
+  background: #488ef7;
+  color: white;
+  margin: 0 8px;
+}
+
+.remove-button {
+  background: #f96060;
+  color: white;
+  margin-left: 12px;
+}
