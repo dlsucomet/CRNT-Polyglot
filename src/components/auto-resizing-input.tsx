@@ -9,22 +9,18 @@ export default class AutoResizingInput extends React.Component<any, {}> {
     let topPadding = getComputedStyle(this.textArea).getPropertyValue("padding-top"); 
     let bottomPadding = getComputedStyle(this.textArea).getPropertyValue("padding-bottom");
     this.padding = parseInt(topPadding) + parseInt(bottomPadding);
+
+    resizeToFitText(this.textArea, this.padding);
+  }
+
+  componentDidUpdate() {
     resizeToFitText(this.textArea, this.padding);
   }
 
   render() {
     return (
-      <textarea {...this.props} onChange={this.handleChange} ref={this.textAreaRef} />
+      <textarea {...this.props} ref={this.textAreaRef} />
     );
-  }
-
-  handleChange = (e: Event) => {
-    this.textArea.value = this.textArea.value.replace(/\r?\n/g, "");
-
-    let onChangeFunc = this.props.onChange;
-    if (onChangeFunc) { onChangeFunc(e); }
-
-    resizeToFitText(this.textArea, this.padding);
   }
 }
 

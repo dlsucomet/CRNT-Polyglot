@@ -96,11 +96,11 @@ export class ReactionModel {
   }
 
   @action setLeft(inputStr: string) {
-    this.left = inputStr;
+    this.left = makeSingleLine(inputStr);
   }
 
   @action setRight(inputStr: string) {
-    this.right = inputStr;
+    this.right = makeSingleLine(inputStr);
   }
 
   @action setArrow(a: Arrow) {
@@ -149,6 +149,10 @@ export class ReactionModel {
       return null;
     }
   }
+}
+
+function makeSingleLine(str: string) {
+  return str.replace(/\r?\n/g, " ");
 }
 
 export enum Arrow { ToLeft, ToRight, BothWays }
