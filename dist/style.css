@@ -1,21 +1,125 @@
-html {
-  box-sizing: border-box;
-  font-family: "Open Sans";
+body {
+  margin: 0;
+  font-family: "Open Sans", Arial, sans-serif;
+  color: #202020;
 }
 
-*, *:before, *:after {
-  box-sizing: inherit;
+input, textarea, button {
   font-family: inherit;
+  color: inherit;
 }
 
-#root {
+a, button {
+  cursor: pointer;
+}
+
+button {
+  background: none;
+  border: none;
+  font-size: 18px;
+}
+
+::-moz-placeholder {
+  color: black;
+  opacity: 0.65;
+}
+
+::-webkit-input-placeholder {
+  color: black;
+  opacity: 0.65;
+}
+
+::-ms-input-placeholder {
+  color: black;
+  opacity: 0.65;
+}
+
+:focus::-moz-placeholder {
+  opacity: 0;
+}
+
+:focus::-webkit-input-placeholder {
+  opacity: 0;
+}
+
+:focus::-ms-input-placeholder {
+  opacity: 0;
+}
+
+.content, .nav {
   width: 960px;
-  margin: auto;
+  margin: 0 auto;
+}
+
+
+/****************************************
+  Navigation Bar
+****************************************/
+
+.nav-bar {
+  background: #f7f7f7;
+  border-bottom: 1px solid #d9d9d9;
+  margin-bottom: 40px;
+}
+
+.nav {
+  list-style-type: none;
+  padding: 0;
+}
+
+.nav > li {
+  display: inline;
+}
+
+.nav li {
+  position: relative;
+}
+
+.nav ul {
+  display: none;
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  width: 180px;
+
+  background: white;
+  border: solid #c0c0c0 1px;
+}
+
+li:hover ul {
+  display: block;
+}
+
+.nav li a {
+    display: inline-block;
+    padding: 10px 15px;
+    text-decoration: none;
+}
+
+.nav ul li a {
+  display: block;
+}
+
+.nav li a:hover, .menu-open {
+    background-color: #dedede;
+}
+
+
+/****************************************
+  Reaction Input Page
+****************************************/
+
+.model-name-input {
+  border: none;
+  border-bottom: solid #C0C0C0 1px;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .reaction-table {
-  border-collapse: collapse;
   list-style-type: none;
+  margin: 20px 0 40px;
   padding: 0;
 }
 
@@ -26,21 +130,31 @@ html {
 .reaction-row:nth-child(odd) {
   background: #f2f2f2;
   padding: 10px 15px;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .reaction-row:nth-child(even) {
   padding: 15px;
 }
 
+.row-number {
+  display: inline-block;
+  text-align: right;
+  width: 25px;
+  margin-right: 8px;
+
+  font-size: 16px;
+  font-weight: bold;
+}
+
 .left-input, .right-input {
-    box-sizing: content-box;
-    resize: none;
-    width: 392px;
-    padding: 4px 8px;
-    border: solid #d8d8d8 1px;
-    margin: 0;
-    font-size: 16px;
+  overflow: hidden;
+  resize: none;
+  width: 382px;
+  margin: 0;
+  padding: 4px 8px;
+  border: solid #d8d8d8 1px;
+  font-size: 16px;
 }
 
 .left-input:focus, .right-input:focus {
@@ -51,48 +165,166 @@ html {
   text-align: right;
 }
 
-.row-number {
-  display: inline-block;
-  text-align: right;
-  width: 24px;
-  margin-right: 8px;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.arrow-button, .remove-button {
-  border-radius: 5px;
-  width: 25px;
-  height: 25px;
-  border: 0;
-  font-weight: bold;
-}
-
 .arrow-button {
-  background: #488ef7;
-  color: white;
   margin: 0 8px;
 }
 
-.arrow-button:hover, .arrow-button:focus {
-  background: #15a8fc;
-}
-
 .remove-button {
-  background: #f96060;
-  color: white;
   margin-left: 12px;
 }
 
-.remove-button:hover, .remove-button:focus {
-  background: #f7143f;
+.clear-button {
+  float: right;
+  margin-top: 5px;
 }
 
-.left-input.has-error, .right-input.has-error {
+
+/****************************************
+  Invalid Input/Textarea
+****************************************/
+
+.invalid {
   background: #fba0a0;
   border: solid #f7143f 1px;
 }
 
-.left-input.has-error:focus, .right-input.has-error:focus {
+.invalid:focus {
   background: white;
+}
+
+
+/****************************************
+  Buttons
+****************************************/
+
+.sq-button {
+  display: inline-block;
+  border-radius: 5px;
+  width: 25px;
+  height: 25px;
+  border: 0;
+  padding: 0;
+  font-size: 16px;
+}
+
+.red-bg {
+  background: #f96060;
+  color: white;
+}
+
+.red-bg:hover, .red-bg:focus {
+  background: #f7143f;
+}
+
+.blue-bg {
+  background: #488ef7;
+  color: white;
+}
+
+.blue-bg:hover, .blue-bg:focus {
+  background: #15a8fc;
+}
+
+.green-bg {
+  background: #75ca22;
+  color: white;
+}
+
+.green-bg:hover, .green-bg:focus {
+  background: #92db4a;
+}
+
+.icon-text-button .sq-button {
+  vertical-align: top;
+  margin-right: 2px;
+}
+
+.row {
+  margin: 20px 0;
+}
+
+
+/****************************************
+  Modal Window
+****************************************/
+
+.modal {
+  position: fixed;
+  z-index: 99;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.modal-box {
+  background-color: #ffffff;
+  margin: 15% auto;
+  padding: 20px 30px;
+  width: 320px;
+  position: relative;
+  border-radius: 10px;
+}
+
+.generation-result {
+  margin: 40px 0;
+}
+
+.generation-result h1 {
+  margin: 0;
+  float: left;
+}
+
+.download-button {
+  background: #75ca22;
+  float: right;
+  border-radius: 8px;
+  color: white;
+  padding: 10px;
+}
+
+.generation-description {
+  clear: both;
+}
+
+.generation-output {
+  overflow: auto;
+  background: #f4f4f4;
+  padding: 10px;
+}
+
+.add-modal h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.add-modal label {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.add-modal input {
+  display: block;
+  width: 60px;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #d0d0d0;
+}
+
+.add-button {
+  vertical-align: bottom;
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.close-button {
+	position: absolute;
+	top: 20px;
+	right: 10px;
+	color: #404040;
 }
