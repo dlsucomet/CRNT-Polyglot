@@ -10,12 +10,6 @@
 <script>
 import ReactionsInputPage from './reactions-input-page.vue';
 import GenerationResultsPage from './generation-results-page.vue';
-import * as R from '../../shared/reaction-network';
-
-let rn = new R.ReactionNetwork("Test Model", [
-  new R.Reaction([new R.Term(1, "X1"), new R.Term(1, "X2")], [new R.Term(2, "X2"), new R.Term(1, "X3")]),
-  new R.Reaction([new R.Term(1, "X4")], [], true),
-]);
 
 export default {
   props: [],

@@ -7,6 +7,7 @@
             <ul>
               <li><a @click="openFile()">Open CRNTP File</a></li>
               <li><a @click="saveFile()">Save CRNTP File</a></li>
+              <li><a @click="backToMenu()">Back to Menu</a></li> 
               <!--<li>
                 <a>Import File</a>
               </li>-->
@@ -89,7 +90,7 @@ export default {
       // TODO: check if unsaved changes exist!
       let fileInput = document.createElement('input');
       fileInput.setAttribute('type', 'file');
-      fileInput.setAttribute('accept', '.crnp');
+      fileInput.setAttribute('accept', '.crntp');
       fileInput.style.display = 'none';
 
       let vm = this;
@@ -122,8 +123,11 @@ export default {
       };
 
       let name = this.modelName || "Unnamed Model";
-      saveTextFile(name + ".crnp", JSON.stringify(jsonRep));
+      saveTextFile(name + ".crntp", JSON.stringify(jsonRep));
       this.hasUnsavedChanges = false;
+    },
+    backToMenu: function() {
+      this.signalEvent("backToMenu");
     },
     generateFiles: function() {
       // TODO: check for errors first (!)

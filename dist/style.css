@@ -328,3 +328,49 @@ li:hover ul {
 	right: 10px;
 	color: #404040;
 }
+
+/****************************************
+  Equation Input Page
+****************************************/
+
+.equation-table {
+  list-style-type: none;
+  margin: 20px 0 40px;
+  padding: 0;
+}
+
+.equation-row > * {
+  vertical-align: middle;
+}
+
+.equation-row:nth-child(odd) {
+  background: #f2f2f2;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+
+.equation-row:nth-child(even) {
+  padding: 15px;
+}
+
+.variable-input, .expression-input {
+  overflow: hidden;
+  resize: none;
+  margin: 0;
+  padding: 4px 8px;
+  border: solid #d8d8d8 1px;
+  font-size: 16px;
+}
+
+.variable-input {
+  width: 64px;
+  text-align: center;
+}
+
+.expression-input {
+  width: 695px;
+}
+
+.variable-input:focus, .expression-input:focus {
+  border: solid #15a8fc 1px;
+}

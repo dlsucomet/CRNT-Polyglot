@@ -14,11 +14,22 @@ class Array2D<T> {
     }
   }
 
+  checkRange(row, col) {
+    if (
+      row < 0 || row >= this.numRows
+      || col < 0 || col >= this.numCols
+    ) {
+      throw `Index out of bounds: (${row}, ${col})`;
+    }
+  }
+
   get(row: number, col: number) {
+    this.checkRange(row, col);
     return this.values[row * this.numCols + col];
   }
 
   set(row: number, col: number, value: T) {
+    this.checkRange(row, col);
     this.values[row * this.numCols + col] = value;
   }
 
