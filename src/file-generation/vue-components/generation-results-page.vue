@@ -66,7 +66,6 @@ export default {
 
   methods: {
     downloadFile: function(index) {
-      console.log(index);
       let fileGenerator = this.results[index].generator;
       let reactionNetwork = this.model;
 

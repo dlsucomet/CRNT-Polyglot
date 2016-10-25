@@ -180,7 +180,6 @@ class EquationInput {
     } else {
       terms.unshift("+");
     }
-    console.log(terms);
 
     let derivative = [];
     for (let i = 0; i < terms.length; i += 2) {

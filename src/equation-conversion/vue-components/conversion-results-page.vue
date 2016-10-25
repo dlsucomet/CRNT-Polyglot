@@ -125,7 +125,6 @@ export default {
     },
     kineticOrderMatrix: function() {
       let kom = CA.kineticOrderMatrix(this.model);
-      console.log(kom.toString());
       return kom;
     },
     stoichiometricMatrix: function() {
