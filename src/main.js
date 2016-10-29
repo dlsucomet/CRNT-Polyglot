@@ -7,4 +7,4 @@ Vue.use(SimpleEventSystem);
 new Vue({
   el: '#root',
   render: h => h(App)
-})
+});

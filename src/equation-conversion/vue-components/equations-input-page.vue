@@ -27,7 +27,7 @@
               <span>/dt</span>
               <span>=</span>
               <auto-resizing-input class="expression-input" v-model="equation.expression" @keyup="changeRow($event, index)" :validator="validExpression"
-                placeholder="derivative (example: -X2^4 + 4 X1^3 X2^-1 - 3 X1^-0.5)" />
+                placeholder="derivative (example: -2*X1^e1 + k1*X2 - X3)" />
               <button class="sq-button red-bg remove-button" @click="removeEquation(index)"><span class="typcn typcn-times"></span></button>
             </li>
         </ol>
@@ -158,6 +158,8 @@ export default {
   eventHandlers: {}
 }
 
+import * as parser from '../parser/derivative-parser';
+
 let id = 0;
 
 class EquationInput {
@@ -169,27 +171,7 @@ class EquationInput {
 
   toEquation() {
     let variable = this.variable;
-
-    let terms = this.expression.trim()
-      .replace(/\^\-/g, "^~")
-      .split(/\s*(\+|\-)\s*/)
-      .map(t => t.replace(/\^~/g, "^-"))
-    ;
-    if (terms[0] === "") {
-      terms.shift();
-    } else {
-      terms.unshift("+");
-    }
-
-    let derivative = [];
-    for (let i = 0; i < terms.length; i += 2) {
-      let sign = terms[i] === "+" ? DE.Sign.Positive : DE.Sign.Negative;
-      let term = DE.Term.fromString(terms[i+1].trim().replace(/\s+/g, ' '));
-      derivative.push({
-        sign: sign,
-        term: term,
-      });
-    }
+    let derivative = parser.parse(this.expression);
 
     return new DE.DifferentialEquation(variable, derivative);
   }
@@ -200,12 +182,16 @@ function validVariable(input) {
 }
 
 function validExpression(input) {
-  if (input === "" || input.trim() === "0") {
+  if (input.trim() === "") {
     return true;
   }
 
-  // TODO: ^ and $ and fix
-  return true;
+  try {
+    parser.parse(input);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
 
 </script>

@@ -8,10 +8,10 @@ function complexVector(sys: SystemOfEquations): Array<Term> {
   return sys.terms.toArray();
 }
 
-function kineticOrderMatrix(sys: SystemOfEquations): Array2D<number> {
+function kineticOrderMatrix(sys: SystemOfEquations): Array2D<string> {
   let numRows = sys.terms.length;
   let numCols = sys.variables.length;
-  let matrix = new Array2D(numRows, numCols, 0);
+  let matrix = new Array2D(numRows, numCols, "0");
 
   for (let row = 0; row < numRows; row++) {
     let term = sys.terms.get(row);
@@ -24,10 +24,10 @@ function kineticOrderMatrix(sys: SystemOfEquations): Array2D<number> {
   return matrix;
 }
 
-function stoichiometricMatrix(sys: SystemOfEquations): Array2D<number|string> {
+function stoichiometricMatrix(sys: SystemOfEquations): Array2D<string> {
   let numRows = sys.variables.length;
   let numCols = sys.terms.length;
-  let matrix = new Array2D<string|number>(numRows, numCols, 0);
+  let matrix = new Array2D<string>(numRows, numCols, "0");
 
   for (let col = 0; col < numCols; col++) {
     let coeff = sys.terms.get(col).coefficient;
@@ -43,14 +43,10 @@ function stoichiometricMatrix(sys: SystemOfEquations): Array2D<number|string> {
   return matrix;
 }
 
-function multiply(sign: number, coeff: string|number): string|number {
-    if (typeof coeff === "number") {
-      return sign * coeff;
-    }
-
+function multiply(sign: number, coeff: string): string {
     switch(sign) {
       case 1: return coeff;
-      case 0: return 0;
+      case 0: return "0";
       case -1: return "-" + coeff;
     }
 }

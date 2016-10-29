@@ -133,16 +133,16 @@ enum Sign { Positive = 1, Negative = -1, Zero = 0 }; // TODO: zero or no zero?
 ***************************************************************/
 class Term {
   constructor(
-    public coefficient: string | number,
+    public coefficient: string,
     public factors: Array<Factor>
   ) { }
 
   toString(): string {
-    if (this.coefficient === 1) {
-      return this.factors.join(" ");
+    if (this.coefficient === "1") {
+      return this.factors.join("*");
     }
 
-    return this.coefficient + " " + this.factors.join(" ");
+    return this.coefficient + "*" + this.factors.join("*");
   }
 
   static fromString(s: string): Term {
@@ -166,11 +166,11 @@ class Term {
 class Factor {
   constructor(
     public variable: string,
-    public exponent: number,
+    public exponent: string,
   ) {}
 
   toString(): string {
-    if (this.exponent === 1) {
+    if (this.exponent === "1") {
       return this.variable;
     }
 
@@ -179,6 +179,6 @@ class Factor {
 
   static fromString(s: string): Factor {
     let match = s.match(/([A-Z][a-zA-Z_0-9]*)(\^\-?\d+(\.\d+)?)?/);
-    return new Factor(match[1], match[2] ? Number(match[2].substring(1)) : 1);
+    return new Factor(match[1], match[2] ? match[2].substring(1) : "1");
   }
 }

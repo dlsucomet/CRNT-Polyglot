@@ -1,0 +1,54 @@
+Start
+  = _ expr:Expression _ { return expr; }
+
+Expression
+  = sign:"-"? first:Term rest:(_ ("+"/"-") _ Term)* {
+      sign = sign === null ? DE.Sign.Positive : DE.Sign.Negative;
+      let terms = [];
+      terms.push({sign: sign, term: first});
+
+      for (let chunk of rest) {
+        let sign = chunk[1] === "+" ? DE.Sign.Positive : DE.Sign.Negative;
+        terms.push({sign: sign, term: chunk[3]});
+      }
+      
+      return terms;
+    }
+
+Term
+  = coeff:((Constant / Number) _ "*" _)?  first:Factor rest:(_ "*" _ Factor)* {
+      coeff = coeff === null ? "1" : coeff[0];
+      let factors = [];
+      factors.push(first);
+
+      for (let chunk of rest) {
+        factors.push(chunk[3]);
+      }
+
+      return new DE.Term(coeff, factors);
+    }
+
+Factor
+  = v:Variable expo:("^" "-"? (Constant / Number))? {
+      if (expo === null) {
+        expo = "1";
+      } else {
+        let sign = expo[1] || "";
+        expo = sign + expo[2];
+      }
+
+      return new DE.Factor(v, expo);
+    }
+
+Variable
+  = [A-Z][_0-9A-Za-z]* { return text(); }
+
+Constant
+  = [a-z][_0-9A-Za-z]* { return text(); }
+
+Number
+  = [1-9][0-9]*("."[0-9]+)? { return text(); }
+  / "0."[0-9]+ { return text(); }
+
+_ "whitespace"
+  = [ \t\n\r]*
