@@ -52,82 +52,83 @@ function multiply(sign: number, coeff: string): string {
 }
 
 function stoicReactionNetwork(sys: SystemOfEquations): RN.ReactionNetwork {
-  let reactants = sys.matrix.map(x => x < 0 ? 1 : 0).transpose();
-  let products = sys.matrix.map(x => x > 0 ? 1 : 0).transpose();
-  let vars = sys.variables.toArray();
+  let reactions = [];
 
-  return reactionNetworkFromMatrices(sys.modelName, reactants, products, vars);
+  for (let col = 0; col < sys.terms.length; col++) {
+    let reactant = [];
+    let product = [];
+
+    for (let row = 0; row < sys.variables.length; row++) {
+      let sign = sys.matrix.get(row, col);
+      if (sign === 0) {
+        continue;
+      }
+
+      let species = sys.variables.get(row);
+      let term = new RN.Term(1, species);
+      if (sign < 0) {
+        reactant.push(term);
+      } else {
+        product.push(term);
+      }
+    }
+
+    reactions.push(new RN.Reaction(reactant, product));
+  }
+
+  return new RN.ReactionNetwork(sys.modelName, reactions);
 }
 
 function totalReactionNetwork(sys: SystemOfEquations): RN.ReactionNetwork {
-  let numReactions = sys.terms.length;
+  let numTerms = sys.terms.length;
   let numVars = sys.variables.length;
-  let reactants = new Array2D(numReactions, numVars, 0);
-  let products = new Array2D(numReactions, numVars, 0);
+  let reactions = [];
 
-  for (let row = 0; row < numReactions; row++) {
-    let term = sys.terms.get(row);
-    for (let factor of term.factors) {
-      let col = sys.variables.indexOf(factor.variable);
-      reactants.set(row, col, 1);
-      products.set(row, col, 1);
+  for (let i = 0; i < numTerms; i++) {
+    let variables = [];
+    for (let factor of sys.terms.get(i).factors) {
+      variables.push(new RN.Term(1, factor.variable));
     }
-  }
+    let baseReaction = new RN.Reaction(variables, variables);
 
-  for (let i = 0; i < numVars; i++) {
-    for (let j = 0; j < numReactions; j++) {
-      // products.set(j, i, products.get(j, i) + sys.matrix.get(i, j));
-      switch(sys.matrix.get(i, j)) {
-        case 1:
-          products.set(j, i, products.get(j, i) + 1);
-          break;
-        case -1:
-          products.set(j, i, products.get(j, i) - 1);
-          break;
+    let positives = [];
+    let negatives = [];
+    for (let j = 0; j < numVars; j++) {
+      let sign = sys.matrix.get(j, i);
+      if (sign === 0) {
+        continue;
+      }
+
+      let v = sys.variables.get(j);
+      if (sign > 0) {
+        positives.push(v);
+      } else {
+        negatives.push(v);
+      }
+    }
+
+    if (positives.length === 0) {
+      for (let v of negatives) {
+        let r = baseReaction.addProduct(new RN.Term(-1, v));
+        reactions.push(r);
+      }
+    } else if (negatives.length === 0) {
+      for (let v of positives) {
+        let r = baseReaction.addProduct(new RN.Term(1, v));
+        reactions.push(r);
+      }
+    } else {
+      for (let p of positives) {
+        for (let n of negatives) {
+          let r = baseReaction
+            .addProduct(new RN.Term(1, p))
+            .addProduct(new RN.Term(-1, n))
+          ;
+          reactions.push(r);
+        }
       }
     }
   }
 
-  let vars = sys.variables.toArray();
-  return reactionNetworkFromMatrices(sys.modelName, reactants, products, vars);
-}
-
-function reactionNetworkFromMatrices(
-  modelName: string,
-  reactants: Array2D<number>,
-  products: Array2D<number>,
-  variables: Array<string>
-): RN.ReactionNetwork {
-  if (
-    reactants.numRows !== products.numRows ||
-    reactants.numCols !== products.numCols ||
-    reactants.numCols !== variables.length
-  ) {
-    throw "ERROR";
-  }
-
-  let numReactions = reactants.numRows;
-  let reactions: Array<RN.Reaction> = new Array(numReactions);
-
-  for (let i = 0; i < numReactions; i++) {
-    let left = getTerms(reactants, variables, i);
-    let right = getTerms(products, variables, i);
-    reactions[i] = new RN.Reaction(left, right, false);
-  }
-
-  return new RN.ReactionNetwork(modelName, reactions);
-}
-
-function getTerms(matrix: Array2D<number>, variables: Array<string>, row: number): Array<RN.Term> {
-  let result = [];
-
-  for (let col = 0; col < variables.length; col++) {
-    let coeff = matrix.get(row, col);
-    if (coeff !== 0) {
-      let term = new RN.Term(coeff, variables[col]);
-      result.push(term);
-    }
-  }
-
-  return result;
+  return new RN.ReactionNetwork(sys.modelName, reactions);
 }

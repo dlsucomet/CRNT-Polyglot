@@ -78,6 +78,43 @@ class Reaction {
     public reversible: boolean = false
   ) { }
 
+  addReactant(term) {
+    let result = this.clone();
+
+    for (let t of result.reactant) {
+      if (t.species === term.species) {
+        t.coefficient += term.coefficient;
+        result.reactant = result.reactant.filter(t => t.coefficient !== 0);
+        return result;
+      }
+    }
+
+    result.reactant.push(term);
+    return result;
+  }
+
+  addProduct(term: Term): Reaction {
+    let result = this.clone();
+
+    for (let t of result.product) {
+      if (t.species === term.species) {
+        t.coefficient += term.coefficient;
+        result.product = result.product.filter(t => t.coefficient !== 0);
+        return result;
+      }
+    }
+
+    result.product.push(term);
+    return result;
+  }
+
+  clone(): Reaction {
+    let reactant = this.reactant.map(t => t.clone());
+    let product = this.product.map(t => t.clone());
+    let reversible = this.reversible;
+    return new Reaction(reactant, product, reversible);
+  }
+
   toString(): string {
     let left = this.reactant.join(" + ") || "0";
     let right = this.product.join(" + ") || "0";
@@ -122,6 +159,12 @@ class Term {
     public coefficient: number, 
     public species: string
   ) { }
+
+  clone(): Term {
+    let coefficeint = this.coefficient;
+    let species = this.species;
+    return new Term(coefficeint, species);
+  }
 
   toString(): string {
     if (this.coefficient === 1) {
