@@ -22,5 +22,20 @@ let Key = {
   ArrowDown: 40,  
 };
 
+function naturalSort(arr) {
+  arr.sort(function(a, b) {
+    let aChunks = a.match(/(\d+)|(\D+)/g).map(elem => /\d+/.test(elem) ? Number(elem) : elem);
+    let bChunks = b.match(/(\d+)|(\D+)/g).map(elem => /\d+/.test(elem) ? Number(elem) : elem);
 
-export { saveTextFile, Key };
+    for (let i = 0; i < aChunks.length && i < bChunks.length; i++) {
+      if (aChunks[i] < bChunks[i]) return -1;
+      if (aChunks[i] > bChunks[i]) return 1;
+    }
+
+    if (aChunks.length < bChunks.length) return -1;
+    if (aChunks.length > bChunks.length) return 1;
+    return 0;
+  });
+}
+
+export { saveTextFile, Key, naturalSort };

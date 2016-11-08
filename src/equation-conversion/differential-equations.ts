@@ -13,6 +13,8 @@ export { SystemOfEquations, DifferentialEquation, Term, Sign, Factor };
 import Array2D from '../shared/array-2d';
 import IndexedSet from '../shared/indexed-set';
 
+import { naturalSort } from '../shared/utils';
+
 /***************************************************************
   Reaction Network
 
@@ -24,6 +26,7 @@ class SystemOfEquations {
   public variables: IndexedSet<string>;
   public terms: IndexedSet<Term>;
   public matrix: Array2D<number>;
+  public equations: Array<DifferentialEquation>;
 
   constructor(
     modelName: string, 
@@ -33,6 +36,7 @@ class SystemOfEquations {
     let eqTerms = flatMap(equations, eq => eq.getTerms());
 
     let vars = new IndexedSet<string>();
+    naturalSort(eqVars);
     vars.putAll(eqVars);
     let terms = new IndexedSet<Term>();
     terms.putAll(eqTerms);
@@ -51,6 +55,7 @@ class SystemOfEquations {
     this.terms = terms;
     this.variables = vars;
     this.matrix = m;
+    this.equations = equations;
   }
 
   toString(): string {

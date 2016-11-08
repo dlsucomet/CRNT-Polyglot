@@ -2,7 +2,7 @@ import { SystemOfEquations, Term } from './differential-equations';
 import * as RN from '../shared/reaction-network';
 import Array2D from '../shared/array-2d';
 
-export {complexVector, kineticOrderMatrix, stoichiometricMatrix, stoicReactionNetwork, totalReactionNetwork};
+export {complexVector, kineticOrderMatrix, stoichiometricMatrix, totalReactionNetwork, embeddedReactionNetwork};
 
 function complexVector(sys: SystemOfEquations): Array<Term> {
   return sys.terms.toArray();
@@ -49,34 +49,6 @@ function multiply(sign: number, coeff: string): string {
       case 0: return "0";
       case -1: return "-" + coeff;
     }
-}
-
-function stoicReactionNetwork(sys: SystemOfEquations): RN.ReactionNetwork {
-  let reactions = [];
-
-  for (let col = 0; col < sys.terms.length; col++) {
-    let reactant = [];
-    let product = [];
-
-    for (let row = 0; row < sys.variables.length; row++) {
-      let sign = sys.matrix.get(row, col);
-      if (sign === 0) {
-        continue;
-      }
-
-      let species = sys.variables.get(row);
-      let term = new RN.Term(1, species);
-      if (sign < 0) {
-        reactant.push(term);
-      } else {
-        product.push(term);
-      }
-    }
-
-    reactions.push(new RN.Reaction(reactant, product));
-  }
-
-  return new RN.ReactionNetwork(sys.modelName, reactions);
 }
 
 function totalReactionNetwork(sys: SystemOfEquations): RN.ReactionNetwork {
@@ -131,4 +103,16 @@ function totalReactionNetwork(sys: SystemOfEquations): RN.ReactionNetwork {
   }
 
   return new RN.ReactionNetwork(sys.modelName, reactions);
+}
+
+function embeddedReactionNetwork(sys: SystemOfEquations): RN.ReactionNetwork {
+  let rn = totalReactionNetwork(sys);
+  let dependentVars = sys.equations.map(eq => eq.variable);
+
+  rn.reactions.forEach(r => {
+    r.reactant = r.reactant.filter(t => dependentVars.indexOf(t.species) !== -1);
+    r.product = r.product.filter(t => dependentVars.indexOf(t.species) !== -1);
+  });
+
+  return rn;
 }

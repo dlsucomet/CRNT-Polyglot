@@ -64,18 +64,6 @@
             </tr>
           </tbody>
         </table>
-        
-        <div class="row">
-          <h1>Reaction Network of the Stoichiometric Representation</h1>
-          <div v-for="(generator, index) in generators">
-            <button @click="downloadStoicReactionNetwork(index)" class="download-button" style="margin-left: 20px;">Download {{generator.name}}</button>
-          </div>
-        </div>
-        <div>
-          <pre style="font-family: 'Open Sans'">
-            {{stoicReactionNetwork.toString().replace(/.*/, '')}}
-          </pre>
-        </div>
 
         <div class="row">
           <h1>Reaction Network of the Total Representation</h1>
@@ -88,7 +76,19 @@
             {{totalReactionNetwork.toString().replace(/.*/, '')}}
           </pre>
         </div>
+
+      <div class="row">
+        <h1>Reaction Network of the Embedded Representation</h1>
+        <div v-for="(generator, index) in generators">
+          <button @click="downloadEmbeddedReactionNetwork(index)" class="download-button" style="margin-left: 20px;">Download {{generator.name}}</button>
+        </div>
       </div>
+      <div>
+        <pre style="font-family: 'Open Sans'">
+          {{embeddedReactionNetwork.toString().replace(/.*/, '')}}
+        </pre>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -130,11 +130,11 @@ export default {
     stoichiometricMatrix: function() {
       return CA.stoichiometricMatrix(this.model);
     },
-    stoicReactionNetwork: function() {
-      return CA.stoicReactionNetwork(this.model);
-    },
     totalReactionNetwork: function() {
       return CA.totalReactionNetwork(this.model);
+    },
+    embeddedReactionNetwork: function() {
+      return CA.embeddedReactionNetwork(this.model);
     },
   },
 
@@ -177,16 +177,16 @@ export default {
       let fileName = `${this.model.modelName} - Stoichiometric Matrix.txt`;
       saveTextFile(fileName, output);
     },
-    downloadStoicReactionNetwork: function(generatorIndex) {
-      let fileGenerator = this.generators[generatorIndex];
-      let output = fileGenerator.generateFile(this.stoicReactionNetwork);
-      let fileName = `${this.model.modelName} - Reaction Network of the Stoichiometric Representation (${fileGenerator.name})${fileGenerator.fileExtension}`;
-      saveTextFile(fileName, output);
-    },
     downloadTotalReactionNetwork: function(generatorIndex) {
       let fileGenerator = this.generators[generatorIndex];
       let output = fileGenerator.generateFile(this.totalReactionNetwork);
       let fileName = `${this.model.modelName} - Reaction Network of the Total Representation (${fileGenerator.name})${fileGenerator.fileExtension}`;
+      saveTextFile(fileName, output);
+    },
+    downloadEmbeddedReactionNetwork: function(generatorIndex) {
+      let fileGenerator = this.generators[generatorIndex];
+      let output = fileGenerator.generateFile(this.embeddedReactionNetwork);
+      let fileName = `${this.model.modelName} - Reaction Network of the Embedded Representation (${fileGenerator.name})${fileGenerator.fileExtension}`;
       saveTextFile(fileName, output);
     },
     goBack: function() {
